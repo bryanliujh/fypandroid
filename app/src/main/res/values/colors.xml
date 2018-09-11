@@ -3,4 +3,9 @@
     <color name="colorPrimary">#E51919</color>
     <color name="colorPrimaryDark">#800C0C</color>
     <color name="colorAccent">#000000</color>
+    <color name="colorGray">#495C67</color>
+    <color name="divider">#ebebeb</color>
+    <color name="shrine_details">#000</color>
+    <color name="colorBackroundWhite">#f0f2ea</color>
+    <color name="colorOrange">#F68159</color>
 </resources>
