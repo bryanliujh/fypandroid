@@ -8,4 +8,5 @@
     <color name="shrine_details">#000</color>
     <color name="colorBackroundWhite">#f0f2ea</color>
     <color name="colorOrange">#F68159</color>
+    <color name="splash_screen_bg">#000</color>
 </resources>

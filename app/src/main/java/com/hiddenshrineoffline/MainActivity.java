@@ -2,11 +2,9 @@ package com.hiddenshrineoffline;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PointF;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -16,12 +14,16 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.ar.core.ArCoreApk;
 import com.google.ar.core.Session;
+import com.google.ar.core.exceptions.UnavailableApkTooOldException;
+import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
+import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
+import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -34,8 +36,6 @@ import com.mapbox.mapboxsdk.style.layers.CircleLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.util.List;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.color;
@@ -54,6 +54,7 @@ public class MainActivity extends AppCompatActivity
 
 
 
+    private FileManager fileManager;
     private String[] colorArr = {"#FF8C00", "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "#A30059",
             "#FFDBE5", "#7A4900", "#0000A6", "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87",
             "#5A0007", "#809693", "#FEFFE6", "#1B4400", "#4FC601", "#3B5DFF", "#4A3B53", "#FF2F80",
@@ -62,7 +63,6 @@ public class MainActivity extends AppCompatActivity
             "#372101", "#FFB500", "#C2FFED", "#A079BF", "#CC0744", "#C0B9B2", "#C2FF99", "#001E09",
             "#00489C", "#6F0062", "#0CBD66", "#EEC3FF", "#456D75", "#B77B68", "#7A87A1", "#788D66",
             "#885578", "#FAD09F", "#FF8A9A", "#D157A0", "#BEC459", "#456648", "#0086ED", "#886F4C",
-
             "#34362D", "#B4A8BD", "#00A6AA", "#452C2C", "#636375", "#A3C8C9", "#FF913F", "#938A81",
             "#575329", "#00FECF", "#B05B6F", "#8CD0FF", "#3B9700", "#04F757", "#C8A1A1", "#1E6E00",
             "#7900D7", "#A77500", "#6367A9", "#A05837", "#6B002C", "#772600", "#D790FF", "#9B9700",
@@ -117,54 +117,35 @@ public class MainActivity extends AppCompatActivity
 
         ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_ASKLOCATION);
 
+
+        // Showing progress dialog
+        pDialog = new ProgressDialog(MainActivity.this);
+        pDialog.setMessage("Please wait...");
+        pDialog.setCancelable(false);
+        pDialog.show();
+
         //mapbox
         mapView = (MapView) findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
 
+
+
+
+
     }
 
 
 
 
-
-
-    public void saveFile(String filename, String fileContents) {
-        FileOutputStream outputStream;
-
-        try{
-            outputStream = openFileOutput(filename, Context.MODE_PRIVATE);
-            outputStream.write(fileContents.getBytes());
-            outputStream.close();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
-
-    public String readFile(String filename){
-        FileInputStream inputStream;
-        int c;
-        String temp = "";
-
-        try{
-            inputStream = openFileInput(filename);
-            while ((c=inputStream.read()) != -1){
-                temp = temp + Character.toString((char) c);
-            }
-            inputStream.close();
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-        return temp;
-    }
 
     public void setCircle(){
         gpsTracker = new GPSTracker(MainActivity.this);
         mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(gpsTracker.getLatitude(),gpsTracker.getLongitude()), 13.0));
 
-        String jsonStr = readFile("mapjson");
+        fileManager = new FileManager();
+        String jsonStr = fileManager.readFile("mapjson",getApplicationContext());
         FeatureCollection featureCollection = FeatureCollection.fromJson(jsonStr);
         Source source = new GeoJsonSource(SOURCE_ID, featureCollection);
         mapboxMap.addSource(source);
@@ -229,13 +210,18 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+
+        // Dismiss the progress dialog
+        if (pDialog.isShowing()) {
+            pDialog.dismiss();
+        }
     }
 
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
-        new GetGeoJsonMap().execute();
-
+        setCircle();
+        setClickListener();
 
         /*
         SymbolLayer myLayer = new SymbolLayer(LAYER_ID, SOURCE_ID);
@@ -245,71 +231,6 @@ public class MainActivity extends AppCompatActivity
 
 
     }
-
-
-    private class GetGeoJsonMap extends AsyncTask<Void, Void, Void>{
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            // Showing progress dialog
-            pDialog = new ProgressDialog(MainActivity.this);
-            pDialog.setMessage("Please wait...");
-            pDialog.setCancelable(false);
-            pDialog.show();
-
-        }
-
-
-        @Override
-        protected Void doInBackground(Void... arg0) {
-            HttpHandler sh = new HttpHandler();
-            // Making a request to url and getting response
-
-            String jsonStr = sh.makeServiceCall(url);
-            saveFile("mapjson", jsonStr);
-
-
-            Log.e("test", "Response from url: " + jsonStr);
-            if (jsonStr != null) {
-                try {
-
-
-                } catch (Exception e) {
-                    Log.e("test2", "Json parsing error: " + e.getMessage());
-                }
-            } else {
-                Log.e("test3", "Couldn't get json from server.");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getApplicationContext(),
-                                "Couldn't get json from server. Check LogCat for possible errors!",
-                                Toast.LENGTH_LONG)
-                                .show();
-                    }
-                });
-
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-            setCircle();
-            setClickListener();
-        // Dismiss the progress dialog
-        if (pDialog.isShowing()) {
-            pDialog.dismiss();
-        }
-        }
-
-
-
-    }
-
 
 
 
@@ -389,7 +310,7 @@ public class MainActivity extends AppCompatActivity
         mapView.onResume();
 
 
-        /*
+
         // ARCore requires camera permission to operate.
         if (!CameraPermissionHelper.hasCameraPermission(this)) {
             CameraPermissionHelper.requestCameraPermission(this);
@@ -434,7 +355,7 @@ public class MainActivity extends AppCompatActivity
                     .show();
             return;
         }
-        */
+
     }
 
     @Override
