@@ -34,7 +34,7 @@ public class ClusterListActivity extends AppCompatActivity {
 
             colorArr = extras.getStringArray("colorArr");
             initClusterArrayList(colorArr);
-            clusterListViewAdapter = new ClusterListViewAdapter(getApplicationContext(), clusterArrayList);
+            clusterListViewAdapter = new ClusterListViewAdapter(this, clusterArrayList);
             clusterListView.setAdapter(clusterListViewAdapter);
         }
 

@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity
     private static final String LAYER_ID = "shrine.layer";
 
     public final int REQUEST_CODE_ASKLOCATION = 500;
+    public final int REQUEST_CODE_WRITESTORAGE = 501;
     private ProgressDialog pDialog;
     private static String url = "https://ntuhiddenshrine.herokuapp.com/map_geojson";
 
@@ -116,7 +117,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_ASKLOCATION);
-
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITESTORAGE);
 
         // Showing progress dialog
         pDialog = new ProgressDialog(MainActivity.this);

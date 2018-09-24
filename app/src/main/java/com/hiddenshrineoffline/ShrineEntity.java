@@ -15,8 +15,8 @@ public class ShrineEntity {
     @ColumnInfo
     private String shrine_uid;
 
-    @ColumnInfo (typeAffinity = ColumnInfo.BLOB)
-    private byte[] shrine_image;
+    @ColumnInfo
+    private String shrine_imageURL;
 
 
     public int getPk() {
@@ -43,12 +43,11 @@ public class ShrineEntity {
         this.shrine_uid = shrine_uid;
     }
 
-    public byte[] getShrine_image() {
-        return shrine_image;
+    public String getShrine_imageURL() {
+        return shrine_imageURL;
     }
 
-    public void setShrine_image(byte[] shrine_image) {
-        this.shrine_image = shrine_image;
+    public void setShrine_imageURL(String shrine_imageURL) {
+        this.shrine_imageURL = shrine_imageURL;
     }
-
 }

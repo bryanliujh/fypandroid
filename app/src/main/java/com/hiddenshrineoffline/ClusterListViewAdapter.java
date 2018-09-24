@@ -1,9 +1,10 @@
 package com.hiddenshrineoffline;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
-import android.util.Log;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,8 +25,13 @@ public class ClusterListViewAdapter extends BaseAdapter{
     private Button updateBtn;
     private FileManager fileManager;
 
+    private int cluster_id;
+    private String jsonStr;
     private String shrineUUID;
     private String imageURL;
+    private String circleID;
+    private ArrayList<ShrineEntity> shrineArrayList;
+    private ProgressDialog pDialog;
 
     public ClusterListViewAdapter(Context context, ArrayList<ClusterEntity> clusterArrayList){
         this.context = context;
@@ -75,9 +81,15 @@ public class ClusterListViewAdapter extends BaseAdapter{
         downloadBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+
                 int position = (Integer)view.getTag();
                 ClusterEntity downloadClusterEntity = (ClusterEntity) getItem(position);
-                getShrineByCluster(downloadClusterEntity.getCluster_uid());
+                cluster_id = downloadClusterEntity.getCluster_uid();
+                new ImageSaveDBInBackground().execute();
+
+
+
 
             }
         });
@@ -86,43 +98,75 @@ public class ClusterListViewAdapter extends BaseAdapter{
         return view;
     }
 
-    public void getShrineByCluster(int cluster_id){
-
-        fileManager = new FileManager();
-        String jsonStr = fileManager.readFile("mapjson",context);
-        try {
-            //use array difference to find the difference in array
-            JSONObject jsonObj = new JSONObject(jsonStr);
-            JSONArray features = jsonObj.getJSONArray("features");
-            for (int i=0; i<features.length(); i++){
-                JSONObject feature = features.getJSONObject(i);
-                JSONObject properties = feature.getJSONObject("properties");
-                shrineUUID = properties.getString("shrineUUID");
-                imageURL = properties.getString("imageURL");
-                Log.e("1",imageURL);
-                /*
-                String properties = feature.getString("properties").replace("\"","").replace("}","");
-                String propertyArr[] = properties.split(",");
-                String shrineUUIDArr[] = propertyArr[1].split(":");
-                String imageURLArr[] = propertyArr[10].split("/*");
-                shrineUUID = shrineUUIDArr[1];
-                imageURL = imageURLArr[2];
-
-                Log.e("1",imageURL);*/
-
-            }
-        }
-        catch(Exception e){
-
-        }
-
-        //Toast toast = Toast.makeText(context, jsonStr, Toast.LENGTH_SHORT);
-        //toast.show();
-    }
 
 
     public class ClusterViewHolder{
         TextView number;
         TextView color;
+    }
+
+
+    private class ImageSaveDBInBackground extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // Showing progress dialog
+            pDialog = new ProgressDialog(context);
+            pDialog.setMessage("Image Downloading");
+            pDialog.setCancelable(false);
+            pDialog.show();
+
+        }
+
+
+        @Override
+        protected Void doInBackground(Void... arg0) {
+            fileManager = new FileManager();
+            jsonStr = fileManager.readFile("mapjson",context);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            try {
+
+                //use array difference to find the difference in array
+                JSONObject jsonObj = new JSONObject(jsonStr);
+                JSONArray features = jsonObj.getJSONArray("features");
+                for (int i=0; i<features.length(); i++){
+                    JSONObject feature = features.getJSONObject(i);
+                    JSONObject properties = feature.getJSONObject("properties");
+                    circleID = properties.getString("circleID");
+                    if (cluster_id == Integer.parseInt(circleID)) {
+                        ShrineEntity shrineEntity = new ShrineEntity();
+                        //get value from the json string
+                        shrineUUID = properties.getString("shrineUUID");
+                        imageURL = properties.getString("imageURL");
+
+                        //download image from imgur
+                        ImageDownload imageDownload = new ImageDownload();
+                        imageDownload.initPicasso(context, imageURL, shrineUUID);
+
+                        //create new shrine entity and add in list
+                        shrineEntity.setShrine_uid(shrineUUID);
+                        shrineEntity.setShrine_imageURL(imageURL);
+                        shrineEntity.setCluster_uid(cluster_id);
+                        shrineArrayList = new ArrayList<ShrineEntity>();
+                        shrineArrayList.add(shrineEntity);
+
+
+                    }
+                }
+            }
+            catch(Exception e){
+
+            }
+
+            // Dismiss the progress dialog
+            if (pDialog.isShowing()) {
+                pDialog.dismiss();
+            }
+        }
     }
 }
