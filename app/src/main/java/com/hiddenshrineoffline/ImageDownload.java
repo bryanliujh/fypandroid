@@ -25,10 +25,10 @@ public class ImageDownload {
                                 File myDir = new File(getPrivateAlbumStorageDir(context, "ShrineAlbum"), name);
                                 //   "/storage/emulated/0/Android/data/com.hiddenshrineoffline/files/Pictures/ShrineAlbum"
 
-                                String dirstr = myDir.getParent();
+                                //String dirstr = myDir.getParent();
 
                                 FileOutputStream out = new FileOutputStream(myDir);
-                                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
                                 out.flush();
                                 out.close();
 

@@ -52,14 +52,20 @@ public class ShrineDetailActivity extends AppCompatActivity {
             religion_val.setText(extras.getString("religion"));
             offerings_val.setText(extras.getString("offerings"));
 
-            imgOptions = new RequestOptions()
-                    .override(800,800)
-                    .centerCrop()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL);
+            NetworkConnection networkConnection = new NetworkConnection();
+            //check if network is connected, if not connected do not download image
+            if(networkConnection.isNetworkConnected(getApplicationContext())) {
+                imgOptions = new RequestOptions()
+                        .override(800, 800)
+                        .centerCrop()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL);
 
-            Glide.with(this).load(extras.getString("imageURL"))
-                    .apply(imgOptions)
-                    .into((ImageView) findViewById(R.id.shrine_img));
+                Glide.with(this).load(extras.getString("imageURL"))
+                        .apply(imgOptions)
+                        .into((ImageView) findViewById(R.id.shrine_img));
+            }
+
+
 
 
         }
