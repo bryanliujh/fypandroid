@@ -162,7 +162,18 @@ public class MainActivity extends AppCompatActivity
                                 stop("7", color(Color.parseColor(colorArr[7]))),
                                 stop("8", color(Color.parseColor(colorArr[8]))),
                                 stop("9", color(Color.parseColor(colorArr[9]))),
-                                stop("10", color(Color.parseColor(colorArr[10]))))));
+                                stop("10", color(Color.parseColor(colorArr[10]))),
+                                stop("11", color(Color.parseColor(colorArr[11]))),
+                                stop("12", color(Color.parseColor(colorArr[12]))),
+                                stop("13", color(Color.parseColor(colorArr[13]))),
+                                stop("14", color(Color.parseColor(colorArr[14]))),
+                                stop("15", color(Color.parseColor(colorArr[15]))),
+                                stop("16", color(Color.parseColor(colorArr[16]))),
+                                stop("17", color(Color.parseColor(colorArr[17]))),
+                                stop("18", color(Color.parseColor(colorArr[18]))),
+                                stop("19", color(Color.parseColor(colorArr[19]))),
+                                stop("20", color(Color.parseColor(colorArr[20])))
+                        )));
 
         mapboxMap.addLayer(circleLayer);
 

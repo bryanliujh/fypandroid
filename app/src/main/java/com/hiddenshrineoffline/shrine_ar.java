@@ -196,7 +196,9 @@ public class shrine_ar extends AppCompatActivity
             AugmentedImageDatabase imageDatabase = new AugmentedImageDatabase(mSession);
             for (ShrineEntity shrine: shrineList){
                 Bitmap augmentedImageBitmap = loadAugmentedImageBitmap(shrine.getShrine_uid());
-                imageDatabase.addImage(shrine.getShrine_uid(),augmentedImageBitmap);
+                if (augmentedImageBitmap != null) {
+                    imageDatabase.addImage(shrine.getShrine_uid(), augmentedImageBitmap);
+                }
             }
             config.setAugmentedImageDatabase(imageDatabase);
             //config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE);

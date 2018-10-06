@@ -12,6 +12,8 @@ import com.squareup.picasso.Target;
 import java.io.File;
 import java.io.FileOutputStream;
 
+
+//TODO: find a way to download huge no of images as it might timeout.
 public class ImageDownload {
     public void initPicasso(Context context, String imageURL, String shrineUUID){
         Picasso.get()
