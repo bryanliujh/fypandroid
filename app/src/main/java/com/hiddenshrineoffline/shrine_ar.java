@@ -179,7 +179,6 @@ public class shrine_ar extends AppCompatActivity
 
     private class setupAugmentedImageDb extends AsyncTask<Void, Void, Void>{
         private final AppDatabase mDB;
-        AugmentedImageDatabase augmentedImageDatabase;
 
         setupAugmentedImageDb(AppDatabase db){
             mDB = db;
@@ -248,6 +247,10 @@ public class shrine_ar extends AppCompatActivity
                 // get the name of the tracked image and navigate to open the page
                Log.d("hello", augmentedImage.getName());
 
+                Intent shrine_detail = new Intent(shrine_ar.this, ShrineDetailActivity.class);
+                shrine_detail.putExtra("shrineUUID", augmentedImage.getName());
+
+                startActivity(shrine_detail);
 
                 /*
                 if (!modelAdded){

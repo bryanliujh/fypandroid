@@ -184,6 +184,7 @@ public class MainActivity extends AppCompatActivity
                     String religion = selectedFeature.getStringProperty("religion");
                     String offerings = selectedFeature.getStringProperty("offerings");
                     String imageURL = selectedFeature.getStringProperty("imageURL");
+                    String shrineUID = selectedFeature.getStringProperty("shrineUUID");
 
                     Intent shrine_detail = new Intent(MainActivity.this, ShrineDetailActivity.class);
                     shrine_detail.putExtra("name",name);
@@ -194,6 +195,7 @@ public class MainActivity extends AppCompatActivity
                     shrine_detail.putExtra("religion", religion);
                     shrine_detail.putExtra("offerings",offerings);
                     shrine_detail.putExtra("imageURL", imageURL);
+                    shrine_detail.putExtra("shrineUUID", shrineUID);
 
                     startActivity(shrine_detail);
 
