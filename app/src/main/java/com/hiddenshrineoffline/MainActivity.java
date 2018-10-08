@@ -20,15 +20,18 @@ import android.view.MenuItem;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.PolygonOptions;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.color;
@@ -48,6 +51,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private FileManager fileManager;
+    private final int CLUSTER_NUM = 20;
     private String[] colorArr = {"#FF8C00", "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "#A30059",
             "#FFDBE5", "#7A4900", "#0000A6", "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87",
             "#5A0007", "#809693", "#FEFFE6", "#1B4400", "#4FC601", "#3B5DFF", "#4A3B53", "#FF2F80",
@@ -141,6 +145,13 @@ public class MainActivity extends AppCompatActivity
         mapboxMap.addSource(source);
 
 
+
+        Expression.Stop[] stops = new Expression.Stop[CLUSTER_NUM];
+        for (int i=0; i<CLUSTER_NUM; i++){
+            stops[i] = stop(String.valueOf(i),color(Color.parseColor(colorArr[i])));
+        }
+
+
         CircleLayer circleLayer = new CircleLayer(LAYER_ID, SOURCE_ID);
         circleLayer.withProperties(
                 circleRadius(
@@ -149,31 +160,14 @@ public class MainActivity extends AppCompatActivity
                                 zoom(),
                                 stop(12, 2f),
                                 stop(22, 180f)
-                        )),
+                        ))
+        );
+
+        circleLayer.setProperties(
                 circleColor(
-                        match(get("circleID"), color(Color.parseColor("#000000")),
-                                stop("0", color(Color.parseColor(colorArr[0]))),
-                                stop("1", color(Color.parseColor(colorArr[1]))),
-                                stop("2", color(Color.parseColor(colorArr[2]))),
-                                stop("3", color(Color.parseColor(colorArr[3]))),
-                                stop("4", color(Color.parseColor(colorArr[4]))),
-                                stop("5", color(Color.parseColor(colorArr[5]))),
-                                stop("6", color(Color.parseColor(colorArr[6]))),
-                                stop("7", color(Color.parseColor(colorArr[7]))),
-                                stop("8", color(Color.parseColor(colorArr[8]))),
-                                stop("9", color(Color.parseColor(colorArr[9]))),
-                                stop("10", color(Color.parseColor(colorArr[10]))),
-                                stop("11", color(Color.parseColor(colorArr[11]))),
-                                stop("12", color(Color.parseColor(colorArr[12]))),
-                                stop("13", color(Color.parseColor(colorArr[13]))),
-                                stop("14", color(Color.parseColor(colorArr[14]))),
-                                stop("15", color(Color.parseColor(colorArr[15]))),
-                                stop("16", color(Color.parseColor(colorArr[16]))),
-                                stop("17", color(Color.parseColor(colorArr[17]))),
-                                stop("18", color(Color.parseColor(colorArr[18]))),
-                                stop("19", color(Color.parseColor(colorArr[19]))),
-                                stop("20", color(Color.parseColor(colorArr[20])))
-                        )));
+                        match(get("circleID"), color(Color.parseColor("#000000")),stops)
+                )
+        );
 
         mapboxMap.addLayer(circleLayer);
 
@@ -270,6 +264,10 @@ public class MainActivity extends AppCompatActivity
             return true;
         }
 
+        else if (id == R.id.cluster_layer){
+            drawCluster();
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -298,6 +296,27 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+
+    public void drawCluster(){
+        List<LatLng> polygon = new ArrayList<>();
+        polygon.add(new LatLng(45.522585, -122.685699));
+        polygon.add(new LatLng(45.534611, -122.708873));
+        polygon.add(new LatLng(45.530883, -122.678833));
+        polygon.add(new LatLng(45.547115, -122.667503));
+        polygon.add(new LatLng(45.530643, -122.660121));
+        polygon.add(new LatLng(45.533529, -122.636260));
+        polygon.add(new LatLng(45.521743, -122.659091));
+        polygon.add(new LatLng(45.510677, -122.648792));
+        polygon.add(new LatLng(45.515008, -122.664070));
+        polygon.add(new LatLng(45.502496, -122.669048));
+        polygon.add(new LatLng(45.515369, -122.678489));
+        polygon.add(new LatLng(45.506346, -122.702007));
+        polygon.add(new LatLng(45.522585, -122.685699));
+        mapboxMap.addPolygon(new PolygonOptions()
+                .addAll(polygon)
+                .fillColor(Color.parseColor("#3bb2d0")));
     }
 
 

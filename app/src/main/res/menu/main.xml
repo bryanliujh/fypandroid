@@ -6,4 +6,17 @@
         android:orderInCategory="100"
         android:title="Download Clusters"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/cluster_layer"
+        android:orderInCategory="200"
+        android:title="Cluster Layer"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/shrine_status"
+        android:orderInCategory="200"
+        android:title="Shrine Status"
+        app:showAsAction="never" />
+
 </menu>

@@ -11,7 +11,7 @@ public class ClusterListActivity extends AppCompatActivity {
 
     private String[] colorArr;
     private ArrayList<ClusterEntity> clusterArrayList;
-    private final int clusterNo = 10;
+    private final int clusterNo = 20;
     private ClusterListViewAdapter clusterListViewAdapter;
     private ListView clusterListView;
 
