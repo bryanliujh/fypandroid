@@ -14,8 +14,10 @@ public class SplashActivity extends AppCompatActivity {
 
     private ProgressDialog pDialog;
     private static String url = "https://ntuhiddenshrine.herokuapp.com/map_geojson";
+    //private static String coord_url = "https://ntuhiddenshrine.herokuapp.com/map_coord";
     private static AppDatabase INSTANCE;
     private FileManager fileManager;
+    private FileManager coordFileManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,6 +55,13 @@ public class SplashActivity extends AppCompatActivity {
                 String jsonStr = sh.makeServiceCall(url);
                 fileManager = new FileManager();
                 fileManager.saveFile("mapjson", jsonStr,getApplicationContext());
+
+
+                //request for coordinates of all points sorted by cluster
+                //HttpHandler sh2 = new HttpHandler();
+                //String coordStr = sh2.makeServiceCall(coord_url);
+                //coordFileManager = new FileManager();
+                //coordFileManager.saveFile("coord_pts", coordStr, getApplicationContext());
 
 
                 Log.e("test", "Response from url: " + jsonStr);

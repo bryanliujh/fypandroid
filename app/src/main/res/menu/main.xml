@@ -15,8 +15,20 @@
 
     <item
         android:id="@+id/shrine_status"
-        android:orderInCategory="200"
+        android:orderInCategory="300"
         android:title="Shrine Status"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/singapore_map"
+        android:orderInCategory="400"
+        android:title="Singapore Map"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/sri_lanka_map"
+        android:orderInCategory="500"
+        android:title="Sri Lanka Map"
         app:showAsAction="never" />
 
 </menu>

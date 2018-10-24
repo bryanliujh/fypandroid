@@ -2,9 +2,11 @@ package com.hiddenshrineoffline;
 
 import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PointF;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -14,13 +16,16 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.PolygonOptions;
+import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -31,8 +36,18 @@ import com.mapbox.mapboxsdk.style.layers.CircleLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.color;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
@@ -51,6 +66,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private FileManager fileManager;
+    private String jsonStr;
     private final int CLUSTER_NUM = 20;
     private String[] colorArr = {"#FF8C00", "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "#A30059",
             "#FFDBE5", "#7A4900", "#0000A6", "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87",
@@ -75,6 +91,8 @@ public class MainActivity extends AppCompatActivity
     private MapView mapView;
     private MapboxMap mapboxMap;
     private GPSTracker gpsTracker;
+    private Context context;
+
 
 
     private static final String SOURCE_ID = "shrine.data";
@@ -83,18 +101,15 @@ public class MainActivity extends AppCompatActivity
     public final int REQUEST_CODE_ASKLOCATION = 500;
     public final int REQUEST_CODE_WRITESTORAGE = 501;
     private ProgressDialog pDialog;
-    private static String url = "https://ntuhiddenshrine.herokuapp.com/map_geojson";
-
-
 
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getApplicationContext();
         Mapbox.getInstance(this, "pk.eyJ1IjoiaGlkZGVuc2hyaW5lbnR1IiwiYSI6ImNqaW15cHNveTA5ZW0za28ybDhhenUwOXAifQ.vDG7MECkwj4PnwW_iqZCNQ");
         setContentView(R.layout.activity_main);
-
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -123,11 +138,6 @@ public class MainActivity extends AppCompatActivity
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
 
-
-
-
-
-
     }
 
 
@@ -139,7 +149,8 @@ public class MainActivity extends AppCompatActivity
         mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(gpsTracker.getLatitude(),gpsTracker.getLongitude()), 13.0));
 
         fileManager = new FileManager();
-        String jsonStr = fileManager.readFile("mapjson",getApplicationContext());
+        jsonStr = fileManager.readFile("mapjson",context);
+        new extractLatLng().execute();
         FeatureCollection featureCollection = FeatureCollection.fromJson(jsonStr);
         Source source = new GeoJsonSource(SOURCE_ID, featureCollection);
         mapboxMap.addSource(source);
@@ -265,8 +276,34 @@ public class MainActivity extends AppCompatActivity
         }
 
         else if (id == R.id.cluster_layer){
-            drawCluster();
+            calCluster();
         }
+
+        else if (id == R.id.shrine_status){
+
+        }
+
+        else if (id == R.id.singapore_map){
+            CameraPosition position = new CameraPosition.Builder()
+                    .target(new LatLng(1.3521, 103.8198)) // Sets the new camera position
+                    .zoom(10) // Sets the zoom
+                    .bearing(180) // Rotate the camera
+                    .tilt(30) // Set the camera tilt
+                    .build(); // Creates a CameraPosition from the builder
+
+            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 7000);
+        }
+        else if (id == R.id.sri_lanka_map){
+            CameraPosition position = new CameraPosition.Builder()
+                    .target(new LatLng(9.6523, 80.0417)) // Sets the new camera position
+                    .zoom(10) // Sets the zoom
+                    .bearing(180) // Rotate the camera
+                    .tilt(30) // Set the camera tilt
+                    .build(); // Creates a CameraPosition from the builder
+
+            mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 7000);
+        }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -298,25 +335,93 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    private class extractLatLng extends AsyncTask<Void, Void, Void> {
 
-    public void drawCluster(){
-        List<LatLng> polygon = new ArrayList<>();
-        polygon.add(new LatLng(45.522585, -122.685699));
-        polygon.add(new LatLng(45.534611, -122.708873));
-        polygon.add(new LatLng(45.530883, -122.678833));
-        polygon.add(new LatLng(45.547115, -122.667503));
-        polygon.add(new LatLng(45.530643, -122.660121));
-        polygon.add(new LatLng(45.533529, -122.636260));
-        polygon.add(new LatLng(45.521743, -122.659091));
-        polygon.add(new LatLng(45.510677, -122.648792));
-        polygon.add(new LatLng(45.515008, -122.664070));
-        polygon.add(new LatLng(45.502496, -122.669048));
-        polygon.add(new LatLng(45.515369, -122.678489));
-        polygon.add(new LatLng(45.506346, -122.702007));
-        polygon.add(new LatLng(45.522585, -122.685699));
+        @Override
+        protected Void doInBackground(Void... voids) {
+            HashMap<Integer, ArrayList<String>> hashMap = new HashMap<>();
+            try {
+
+                JSONObject jsonObject = new JSONObject(jsonStr);
+                JSONArray features = jsonObject.getJSONArray("features");
+                for (int i=0; i<features.length(); i++){
+                    JSONObject feature = features.getJSONObject(i);
+                    //get cluster id
+                    JSONObject properties = feature.getJSONObject("properties");
+                    Integer circleID = Integer.parseInt(properties.getString("circleID"));
+                    //get coordinates of pts
+                    JSONObject geometry = feature.getJSONObject("geometry");
+                    JSONArray coord_arr = geometry.getJSONArray("coordinates");
+                    double lon = (double) coord_arr.get(0);
+                    double lat = (double) coord_arr.get(1);
+                    String coord = String.valueOf(lon) + ',' + String.valueOf(lat);
+                    hashMap.computeIfAbsent(circleID, k -> new ArrayList<>()).add(coord);
+                }
+
+
+            }
+            catch(Exception e){
+                Log.e("json_error","Error Extracting Latitude and Longitude");
+            }
+
+
+            try{
+                File file = new File(context.getFilesDir(), "lat_lon_file");
+                ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
+                outputStream.writeObject(hashMap);
+                outputStream.flush();
+                outputStream.close();
+            }
+            catch(Exception e){
+                Log.e("save_error","Error Saving Latitude and Longitude");
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+
+            Toast.makeText(getApplicationContext(), "Extracting of Latitude and Longitude Finished", Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+
+
+    public void calCluster(){
+        HashMap<Integer, ArrayList<String>> hashMap = new HashMap<>();
+        try {
+            File file = new File(context.getFilesDir(), "lat_lon_file");
+            ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file));
+            hashMap = (HashMap<Integer, ArrayList<String>>) objectInputStream.readObject();
+        }
+        catch(Exception e){
+            Log.e("read_error","Error Reading Latitude and Longitude");
+        }
+
+        for (Map.Entry<Integer, ArrayList<String>> entry : hashMap.entrySet()){
+            List<LatLng> points = new ArrayList<>();
+            for (String e : entry.getValue()){
+                String[] coord = e.split(",");
+                double lon = Double.parseDouble(coord[0]);
+                double lat = Double.parseDouble(coord[1]);
+                LatLng location = new LatLng(lat,lon);
+                points.add(location);
+            }
+
+            QuickHullLatLng quickHullLatLng = new QuickHullLatLng();
+            ArrayList<LatLng> hullLatLng = new ArrayList<>(quickHullLatLng.quickHull(points));
+            drawCluster(hullLatLng, entry.getKey());
+        }
+
+    }
+
+    public void drawCluster(ArrayList<LatLng> points, Integer color_index){
         mapboxMap.addPolygon(new PolygonOptions()
-                .addAll(polygon)
-                .fillColor(Color.parseColor("#3bb2d0")));
+                .addAll(points)
+                .fillColor(Color.parseColor(colorArr[color_index])));
     }
 
 
