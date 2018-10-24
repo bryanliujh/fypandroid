@@ -389,7 +389,7 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-
+    //Calculate the convex hull
     public void calCluster(){
         HashMap<Integer, ArrayList<String>> hashMap = new HashMap<>();
         try {
