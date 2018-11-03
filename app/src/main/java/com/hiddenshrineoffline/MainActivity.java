@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PointF;
+import android.graphics.RectF;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -24,7 +25,6 @@ import android.widget.Toast;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.annotations.PolygonOptions;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -33,6 +33,8 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
+import com.mapbox.mapboxsdk.style.layers.FillLayer;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.Source;
 
@@ -58,7 +60,6 @@ import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.zoom;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
-
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
@@ -92,11 +93,15 @@ public class MainActivity extends AppCompatActivity
     private MapboxMap mapboxMap;
     private GPSTracker gpsTracker;
     private Context context;
+    private CircleLayer circleLayer;
+    private Expression.Stop[] stops;
 
 
 
     private static final String SOURCE_ID = "shrine.data";
+    private static final String CLUSTER_SOURCE_ID = "shrine.cluster";
     private static final String LAYER_ID = "shrine.layer";
+    private static final String CLUSTER_LAYER_ID = "shrine.cluster.layer";
 
     public final int REQUEST_CODE_ASKLOCATION = 500;
     public final int REQUEST_CODE_WRITESTORAGE = 501;
@@ -126,6 +131,12 @@ public class MainActivity extends AppCompatActivity
 
         ActivityCompat.requestPermissions(this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_ASKLOCATION);
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITESTORAGE);
+
+
+        stops = new Expression.Stop[CLUSTER_NUM];
+        for (int i=0; i<CLUSTER_NUM; i++){
+            stops[i] = stop(String.valueOf(i),color(Color.parseColor(colorArr[i])));
+        }
 
         // Showing progress dialog
         pDialog = new ProgressDialog(MainActivity.this);
@@ -157,13 +168,7 @@ public class MainActivity extends AppCompatActivity
 
 
 
-        Expression.Stop[] stops = new Expression.Stop[CLUSTER_NUM];
-        for (int i=0; i<CLUSTER_NUM; i++){
-            stops[i] = stop(String.valueOf(i),color(Color.parseColor(colorArr[i])));
-        }
-
-
-        CircleLayer circleLayer = new CircleLayer(LAYER_ID, SOURCE_ID);
+        circleLayer = new CircleLayer(LAYER_ID, SOURCE_ID);
         circleLayer.withProperties(
                 circleRadius(
                         interpolate(
@@ -392,16 +397,25 @@ public class MainActivity extends AppCompatActivity
     //Calculate the convex hull
     public void calCluster(){
         HashMap<Integer, ArrayList<String>> hashMap = new HashMap<>();
+        JSONObject featureCollection = new JSONObject();
+        JSONArray features = new JSONArray();
         try {
             File file = new File(context.getFilesDir(), "lat_lon_file");
             ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file));
             hashMap = (HashMap<Integer, ArrayList<String>>) objectInputStream.readObject();
+
+
+            //create geojson root
+            featureCollection.put("type", "FeatureCollection");
+
+
         }
         catch(Exception e){
             Log.e("read_error","Error Reading Latitude and Longitude");
         }
 
         for (Map.Entry<Integer, ArrayList<String>> entry : hashMap.entrySet()){
+
             List<LatLng> points = new ArrayList<>();
             for (String e : entry.getValue()){
                 String[] coord = e.split(",");
@@ -413,16 +427,89 @@ public class MainActivity extends AppCompatActivity
 
             QuickHullLatLng quickHullLatLng = new QuickHullLatLng();
             ArrayList<LatLng> hullLatLng = new ArrayList<>(quickHullLatLng.quickHull(points));
-            drawCluster(hullLatLng, entry.getKey());
+            //drawCluster(hullLatLng, entry.getKey());
+
+            JSONArray coord_arr_list = new JSONArray();
+            JSONArray coord_arr_list2 = new JSONArray();
+
+            for (LatLng coord_pt : hullLatLng){
+                try {
+                    JSONArray coord_pt_json = new JSONArray();
+                    coord_pt_json.put(coord_pt.getLongitude());
+                    coord_pt_json.put(coord_pt.getLatitude());
+                    coord_arr_list.put(coord_pt_json);
+
+                }
+                catch(Exception ex){ }
+            }
+
+            coord_arr_list2.put(coord_arr_list);
+            //create geojson features array
+            features = buildGeojson(features, coord_arr_list2, entry.getKey());
+
         }
+
+        try {
+            featureCollection.put("features", features);
+        }catch(Exception e){
+            Log.e("json_error_features","Unable to add features array to collection");
+        }
+
+        drawCluster(featureCollection);
+
 
     }
 
+    /*
     public void drawCluster(ArrayList<LatLng> points, Integer color_index){
         mapboxMap.addPolygon(new PolygonOptions()
                 .addAll(points)
                 .fillColor(Color.parseColor(colorArr[color_index])));
+    }*/
+
+    public void drawCluster(JSONObject featureCollection){
+        String featureCollection_str = featureCollection.toString();
+        FeatureCollection featureCollection_obj = FeatureCollection.fromJson(featureCollection_str);
+        Source source = new GeoJsonSource(CLUSTER_SOURCE_ID, featureCollection_obj);
+        mapboxMap.addSource(source);
+
+        // Create and style a FillLayer that uses the Polygon Feature's coordinates in the GeoJSON data
+        FillLayer borderOutlineLayer = new FillLayer(CLUSTER_LAYER_ID, CLUSTER_SOURCE_ID);
+        borderOutlineLayer.setProperties(
+                PropertyFactory.fillColor(match(get("circleID"), color(Color.parseColor("#000000")),stops))
+        );
+        //borderOutlineLayer.setFilter(eq(geometryType(), literal("Polygon")));
+        //borderOutlineLayer.setFilter(eq(literal("$type"), literal("Polygon")));
+        //mapboxMap.removeLayer(circleLayer);
+        mapboxMap.addLayer(borderOutlineLayer);
+        setClusterClickListener();
     }
+
+    public void setClusterClickListener(){
+        mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(@NonNull LatLng point) {
+                PointF pointf = mapboxMap.getProjection().toScreenLocation(point);
+                RectF rectF = new RectF(pointf.x - 10, pointf.y - 10, pointf.x + 10, pointf.y + 10);
+                List<Feature> featureList = mapboxMap.queryRenderedFeatures(rectF, CLUSTER_LAYER_ID);
+                if (featureList.size() > 0) {
+                    for (Feature feature : featureList) {
+                        Log.d("Feature found with %1$s", feature.toJson());
+                        Toast.makeText(MainActivity.this, feature.toJson(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+
+
+            }
+        });
+
+        // Dismiss the progress dialog
+        if (pDialog.isShowing()) {
+            pDialog.dismiss();
+        }
+    }
+
 
 
     @Override
@@ -476,6 +563,30 @@ public class MainActivity extends AppCompatActivity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         mapView.onSaveInstanceState(outState);
+    }
+
+    public JSONArray buildGeojson(JSONArray features, JSONArray coord_arr_list, Integer color_index){
+
+        try {
+
+            JSONObject feature = new JSONObject();
+            JSONObject geometry = new JSONObject();
+            JSONObject properties = new JSONObject();
+
+            feature.put("type", "Feature");
+            geometry.put("coordinates", coord_arr_list);
+            geometry.put("type", "Polygon");
+            feature.put("geometry", geometry);
+            properties.put("circleID", color_index.toString());
+            feature.put("properties", properties);
+            features.put(feature);
+
+        }
+        catch (Exception e){
+            Log.e("json_error_featureArr","Unable to add feature to features array");
+        }
+
+        return features;
     }
 
 }
