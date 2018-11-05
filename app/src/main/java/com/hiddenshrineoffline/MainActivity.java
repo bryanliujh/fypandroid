@@ -446,7 +446,6 @@ public class MainActivity extends AppCompatActivity
 
             QuickHullLatLng quickHullLatLng = new QuickHullLatLng();
             ArrayList<LatLng> hullLatLng = new ArrayList<>(quickHullLatLng.quickHull(points));
-            //drawCluster(hullLatLng, entry.getKey());
 
             JSONArray coord_arr_list = new JSONArray();
             JSONArray coord_arr_list2 = new JSONArray();
@@ -501,7 +500,7 @@ public class MainActivity extends AppCompatActivity
         //borderOutlineLayer.setFilter(eq(literal("$type"), literal("Polygon")));
         //mapboxMap.removeLayer(circleLayer);
         mapboxMap.addLayer(borderOutlineLayer);
-        setClusterClickListener();
+        //setClusterClickListener();
     }
 
     public void setClusterClickListener(){
