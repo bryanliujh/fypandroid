@@ -513,15 +513,15 @@ public class MainActivity extends AppCompatActivity
                 List<Feature> featureList = mapboxMap.queryRenderedFeatures(rectF, CLUSTER_LAYER_ID);
                 if (featureList.size() > 0) {
                     for (Feature feature : featureList) {
-                        //Log.d("Feature found with %1$s", feature.toJson());
+                        Log.d("Feature found with %1$s", feature.toJson());
                         //Toast.makeText(MainActivity.this, feature.toJson(), Toast.LENGTH_SHORT).show();
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                         builder.setTitle("Do you want to download cluster?");
                         builder.setPositiveButton("Download", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                DownloadInMain downloadInMain = new DownloadInMain();
-                                downloadInMain.downloadCluster(getApplicationContext(), feature.toJson());
+                                DownloadCluster downloadCluster = new DownloadCluster();
+                                downloadCluster.downloadCluster(getApplicationContext(), feature.toJson());
                             }
                         });
                         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
