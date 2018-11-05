@@ -20,15 +20,24 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/singapore_map"
+        android:id="@+id/toggle_cluster"
         android:orderInCategory="400"
+        android:title=""
+        android:actionLayout="@layout/toggle_cluster_layout"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/singapore_map"
+        android:orderInCategory="500"
         android:title="Singapore Map"
-        app:showAsAction="never" />
+        android:icon="@drawable/ic_singapore"
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/sri_lanka_map"
-        android:orderInCategory="500"
+        android:orderInCategory="600"
         android:title="Sri Lanka Map"
-        app:showAsAction="never" />
+        android:icon="@drawable/ic_sri_lanka"
+        app:showAsAction="always" />
 
 </menu>

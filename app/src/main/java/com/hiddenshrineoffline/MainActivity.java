@@ -1,8 +1,10 @@
 package com.hiddenshrineoffline;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PointF;
@@ -20,6 +22,8 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.mapbox.geojson.Feature;
@@ -235,14 +239,6 @@ public class MainActivity extends AppCompatActivity
         this.mapboxMap = mapboxMap;
         setCircle();
         setClickListener();
-
-        /*
-        SymbolLayer myLayer = new SymbolLayer(LAYER_ID, SOURCE_ID);
-        myLayer.setProperties(iconImage("place-of-worship-15"));
-        mapboxMap.addLayer(myLayer);*/
-
-
-
     }
 
 
@@ -262,6 +258,24 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+        MenuItem menuItem = (MenuItem) menu.findItem(R.id.toggle_cluster);
+        menuItem.setActionView(R.layout.toggle_cluster_layout);
+        Switch switchToggle = menuItem.getActionView().findViewById(R.id.switchCluster);
+        switchToggle.setChecked(false);
+        switchToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if (b){
+                    //when checked
+
+                }
+                else{
+                    //when unchecked
+
+                }
+            }
+        });
+
         return true;
     }
 
@@ -285,6 +299,11 @@ public class MainActivity extends AppCompatActivity
         }
 
         else if (id == R.id.shrine_status){
+
+        }
+
+        else if (id == R.id.toggle_cluster){
+
 
         }
 
@@ -494,8 +513,27 @@ public class MainActivity extends AppCompatActivity
                 List<Feature> featureList = mapboxMap.queryRenderedFeatures(rectF, CLUSTER_LAYER_ID);
                 if (featureList.size() > 0) {
                     for (Feature feature : featureList) {
-                        Log.d("Feature found with %1$s", feature.toJson());
-                        Toast.makeText(MainActivity.this, feature.toJson(), Toast.LENGTH_SHORT).show();
+                        //Log.d("Feature found with %1$s", feature.toJson());
+                        //Toast.makeText(MainActivity.this, feature.toJson(), Toast.LENGTH_SHORT).show();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle("Do you want to download cluster?");
+                        builder.setPositiveButton("Download", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                DownloadInMain downloadInMain = new DownloadInMain();
+                                downloadInMain.downloadCluster(getApplicationContext(), feature.toJson());
+                            }
+                        });
+                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                            }
+                        });
+
+                        AlertDialog dialog = builder.create();
+                        dialog.show();
+
                     }
                 }
 
