@@ -450,16 +450,20 @@ public class MainActivity extends AppCompatActivity
             JSONArray coord_arr_list = new JSONArray();
             JSONArray coord_arr_list2 = new JSONArray();
 
-            for (LatLng coord_pt : hullLatLng){
-                try {
-                    JSONArray coord_pt_json = new JSONArray();
-                    coord_pt_json.put(coord_pt.getLongitude());
-                    coord_pt_json.put(coord_pt.getLatitude());
-                    coord_arr_list.put(coord_pt_json);
+            //note: first and last coordinate points must be the same or else you will get malformed polygon
 
+                try {
+                    for (LatLng coord_pt : hullLatLng) {
+                        JSONArray coord_pt_json = new JSONArray();
+                        coord_pt_json.put(coord_pt.getLongitude());
+                        coord_pt_json.put(coord_pt.getLatitude());
+                        coord_arr_list.put(coord_pt_json);
+                    }
+                    //fix the malformed polygon bug by making the first element same as the last
+                    coord_arr_list.put(coord_arr_list.getJSONArray(0));
                 }
                 catch(Exception ex){ }
-            }
+
 
             coord_arr_list2.put(coord_arr_list);
             //create geojson features array
@@ -500,7 +504,7 @@ public class MainActivity extends AppCompatActivity
         //borderOutlineLayer.setFilter(eq(literal("$type"), literal("Polygon")));
         //mapboxMap.removeLayer(circleLayer);
         mapboxMap.addLayer(borderOutlineLayer);
-        //setClusterClickListener();
+        setClusterClickListener();
     }
 
     public void setClusterClickListener(){
