@@ -2,29 +2,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/download_cluster"
         android:orderInCategory="100"
         android:title="Download Clusters"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/cluster_layer"
+        android:checkable="true"
         android:orderInCategory="200"
         android:title="Cluster Layer"
         app:showAsAction="never" />
 
-    <item
-        android:id="@+id/shrine_status"
-        android:orderInCategory="300"
-        android:title="Shrine Status"
-        app:showAsAction="never" />
-
+    <!--
     <item
         android:id="@+id/toggle_cluster"
         android:orderInCategory="400"
         android:title=""
         android:actionLayout="@layout/toggle_cluster_layout"
         app:showAsAction="always" />
+    -->
 
     <item
         android:id="@+id/singapore_map"

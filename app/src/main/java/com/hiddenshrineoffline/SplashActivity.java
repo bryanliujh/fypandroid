@@ -14,9 +14,10 @@ public class SplashActivity extends AppCompatActivity {
 
     private ProgressDialog pDialog;
     private static String url = "https://ntuhiddenshrine.herokuapp.com/map_geojson";
-    //private static String coord_url = "https://ntuhiddenshrine.herokuapp.com/map_coord";
+    private static String url2 = "https://ntuhiddenshrine.herokuapp.com/kmeans_geojson";
     private static AppDatabase INSTANCE;
     private FileManager fileManager;
+    private FileManager fileManager2;
     private FileManager coordFileManager;
 
     @Override
@@ -50,18 +51,16 @@ public class SplashActivity extends AppCompatActivity {
             //check if network is connected, if not connected do not download json string
             if(networkConnection.isNetworkConnected(getApplicationContext())) {
                 HttpHandler sh = new HttpHandler();
+                HttpHandler sh2 = new HttpHandler();
                 // Making a request to url and getting response
 
                 String jsonStr = sh.makeServiceCall(url);
                 fileManager = new FileManager();
                 fileManager.saveFile("mapjson", jsonStr,getApplicationContext());
 
-
-                //request for coordinates of all points sorted by cluster
-                //HttpHandler sh2 = new HttpHandler();
-                //String coordStr = sh2.makeServiceCall(coord_url);
-                //coordFileManager = new FileManager();
-                //coordFileManager.saveFile("coord_pts", coordStr, getApplicationContext());
+                String jsonStr2 = sh2.makeServiceCall(url2);
+                fileManager2 = new FileManager();
+                fileManager2.saveFile("kmeansjson", jsonStr2, getApplicationContext());
 
 
                 Log.e("test", "Response from url: " + jsonStr);

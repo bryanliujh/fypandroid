@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -22,12 +23,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.Toast;
 
 import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraPosition;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
@@ -37,10 +35,6 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
-import com.mapbox.mapboxsdk.style.layers.FillLayer;
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.mapboxsdk.style.sources.Source;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -56,14 +50,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.color;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.exponential;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.get;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.interpolate;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.match;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
-import static com.mapbox.mapboxsdk.style.expressions.Expression.zoom;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleColor;
-import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
@@ -72,6 +59,7 @@ public class MainActivity extends AppCompatActivity
 
     private FileManager fileManager;
     private String jsonStr;
+    private String jsonStrKmeans;
     private final int CLUSTER_NUM = 20;
     private String[] colorArr = {"#FF8C00", "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "#A30059",
             "#FFDBE5", "#7A4900", "#0000A6", "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87",
@@ -99,13 +87,18 @@ public class MainActivity extends AppCompatActivity
     private Context context;
     private CircleLayer circleLayer;
     private Expression.Stop[] stops;
+    private boolean region_bool;
+    private SharedPreferences sharedPreferences;
 
 
-
+    private MapLayerSource mapLayerSource;
     private static final String SOURCE_ID = "shrine.data";
-    private static final String CLUSTER_SOURCE_ID = "shrine.cluster";
     private static final String LAYER_ID = "shrine.layer";
+    private static final String CLUSTER_SOURCE_ID = "shrine.cluster";
     private static final String CLUSTER_LAYER_ID = "shrine.cluster.layer";
+    private static final String K_SOURCE_ID = "kmeans.data";
+    private static final String K_LAYER_ID = "kmeans.layer";
+    private MapboxMap.OnMapClickListener clusterListener;
 
     public final int REQUEST_CODE_ASKLOCATION = 500;
     public final int REQUEST_CODE_WRITESTORAGE = 501;
@@ -137,6 +130,9 @@ public class MainActivity extends AppCompatActivity
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_CODE_WRITESTORAGE);
 
 
+        mapLayerSource = new MapLayerSource();
+        sharedPreferences = context.getSharedPreferences("cluster_settings", context.MODE_PRIVATE);
+
         stops = new Expression.Stop[CLUSTER_NUM];
         for (int i=0; i<CLUSTER_NUM; i++){
             stops[i] = stop(String.valueOf(i),color(Color.parseColor(colorArr[i])));
@@ -159,39 +155,7 @@ public class MainActivity extends AppCompatActivity
 
 
 
-    public void setCircle(){
-        gpsTracker = new GPSTracker(MainActivity.this);
-        mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(gpsTracker.getLatitude(),gpsTracker.getLongitude()), 13.0));
 
-        fileManager = new FileManager();
-        jsonStr = fileManager.readFile("mapjson",context);
-        new extractLatLng().execute();
-        FeatureCollection featureCollection = FeatureCollection.fromJson(jsonStr);
-        Source source = new GeoJsonSource(SOURCE_ID, featureCollection);
-        mapboxMap.addSource(source);
-
-
-
-        circleLayer = new CircleLayer(LAYER_ID, SOURCE_ID);
-        circleLayer.withProperties(
-                circleRadius(
-                        interpolate(
-                                exponential(1.75f),
-                                zoom(),
-                                stop(12, 2f),
-                                stop(22, 180f)
-                        ))
-        );
-
-        circleLayer.setProperties(
-                circleColor(
-                        match(get("circleID"), color(Color.parseColor("#000000")),stops)
-                )
-        );
-
-        mapboxMap.addLayer(circleLayer);
-
-    }
 
     public void setClickListener(){
         mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
@@ -237,11 +201,26 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onMapReady(MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
-        setCircle();
+        gpsTracker = new GPSTracker(MainActivity.this);
+        mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(gpsTracker.getLatitude(),gpsTracker.getLongitude()), 13.0));
+
+        //set mapsource
+        fileManager = new FileManager();
+        jsonStr = fileManager.readFile("mapjson",context);
+        new extractLatLng().execute();
+        jsonStrKmeans = fileManager.readFile("kmeansjson",context);
+        mapLayerSource.addMapSource(mapboxMap, jsonStr, SOURCE_ID);
+
+        //set maplayer
+        mapLayerSource.addMapLayer(mapboxMap, LAYER_ID, SOURCE_ID, stops);
         setClickListener();
     }
 
-
+    public void removeAllMapLayer(){
+        mapLayerSource.removeMapLayer(mapboxMap, LAYER_ID);
+        mapLayerSource.removeMapLayer(mapboxMap, K_LAYER_ID);
+        mapLayerSource.removeMapLayer(mapboxMap, CLUSTER_LAYER_ID);
+    }
 
 
     @Override
@@ -258,6 +237,8 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
+        /*
         MenuItem menuItem = (MenuItem) menu.findItem(R.id.toggle_cluster);
         menuItem.setActionView(R.layout.toggle_cluster_layout);
         Switch switchToggle = menuItem.getActionView().findViewById(R.id.switchCluster);
@@ -275,6 +256,8 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+        */
+
 
         return true;
     }
@@ -285,26 +268,40 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        //get boolean of region_bool else default is false
+        boolean region_bool = sharedPreferences.getBoolean("region_bool", false);
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.download_cluster) {
             Intent cluster = new Intent(MainActivity.this, ClusterListActivity.class);
             cluster.putExtra("colorArr",colorArr);
             startActivity(cluster);
             return true;
         }
 
+
         else if (id == R.id.cluster_layer){
-            calCluster();
-        }
+            removeAllMapLayer();
+            mapboxMap.removeOnMapClickListener(clusterListener);
 
-        else if (id == R.id.shrine_status){
+            if (item.isChecked()){
+                mapLayerSource.addMapLayer(mapboxMap, LAYER_ID, SOURCE_ID, stops);
+                item.setChecked(false);
+            } else {
+                //cluster by region or proximity
+                if (region_bool) {
+                    KMeansCluster kMeansCluster = new KMeansCluster();
+                    kMeansCluster.initKMeans(context, mapboxMap, colorArr, jsonStrKmeans);
+                    item.setChecked(true);
+                } else {
+                    calCluster();
+                    item.setChecked(true);
+                }
 
-        }
-
-        else if (id == R.id.toggle_cluster){
+            }
 
 
+            return true;
         }
 
         else if (id == R.id.singapore_map){
@@ -316,6 +313,7 @@ public class MainActivity extends AppCompatActivity
                     .build(); // Creates a CameraPosition from the builder
 
             mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 7000);
+            return true;
         }
         else if (id == R.id.sri_lanka_map){
             CameraPosition position = new CameraPosition.Builder()
@@ -326,6 +324,7 @@ public class MainActivity extends AppCompatActivity
                     .build(); // Creates a CameraPosition from the builder
 
             mapboxMap.animateCamera(CameraUpdateFactory.newCameraPosition(position), 7000);
+            return true;
         }
 
 
@@ -464,7 +463,7 @@ public class MainActivity extends AppCompatActivity
                 }
                 catch(Exception ex){ }
 
-
+            //geojson format need to have another array over another array
             coord_arr_list2.put(coord_arr_list);
             //create geojson features array
             features = buildGeojson(features, coord_arr_list2, entry.getKey());
@@ -477,8 +476,9 @@ public class MainActivity extends AppCompatActivity
             Log.e("json_error_features","Unable to add features array to collection");
         }
 
-        drawCluster(featureCollection);
-
+        if (mapLayerSource.mapSourceExist(mapboxMap,SOURCE_ID) == true) {
+            drawCluster(featureCollection);
+        }
 
     }
 
@@ -491,24 +491,13 @@ public class MainActivity extends AppCompatActivity
 
     public void drawCluster(JSONObject featureCollection){
         String featureCollection_str = featureCollection.toString();
-        FeatureCollection featureCollection_obj = FeatureCollection.fromJson(featureCollection_str);
-        Source source = new GeoJsonSource(CLUSTER_SOURCE_ID, featureCollection_obj);
-        mapboxMap.addSource(source);
-
-        // Create and style a FillLayer that uses the Polygon Feature's coordinates in the GeoJSON data
-        FillLayer borderOutlineLayer = new FillLayer(CLUSTER_LAYER_ID, CLUSTER_SOURCE_ID);
-        borderOutlineLayer.setProperties(
-                PropertyFactory.fillColor(match(get("circleID"), color(Color.parseColor("#000000")),stops))
-        );
-        //borderOutlineLayer.setFilter(eq(geometryType(), literal("Polygon")));
-        //borderOutlineLayer.setFilter(eq(literal("$type"), literal("Polygon")));
-        //mapboxMap.removeLayer(circleLayer);
-        mapboxMap.addLayer(borderOutlineLayer);
+        mapLayerSource.addMapSource(mapboxMap, featureCollection_str, CLUSTER_SOURCE_ID);
+        mapLayerSource.addBorderLayer(mapboxMap, CLUSTER_LAYER_ID, CLUSTER_SOURCE_ID, stops);
         setClusterClickListener();
     }
 
     public void setClusterClickListener(){
-        mapboxMap.addOnMapClickListener(new MapboxMap.OnMapClickListener() {
+        clusterListener = new MapboxMap.OnMapClickListener() {
             @Override
             public void onMapClick(@NonNull LatLng point) {
                 PointF pointf = mapboxMap.getProjection().toScreenLocation(point);
@@ -539,11 +528,9 @@ public class MainActivity extends AppCompatActivity
 
                     }
                 }
-
-
-
             }
-        });
+        };
+        mapboxMap.addOnMapClickListener(clusterListener);
 
         // Dismiss the progress dialog
         if (pDialog.isShowing()) {

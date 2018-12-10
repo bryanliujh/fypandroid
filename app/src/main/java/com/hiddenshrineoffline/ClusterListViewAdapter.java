@@ -84,7 +84,7 @@ public class ClusterListViewAdapter extends BaseAdapter{
         clusterBg.setColor(Color.parseColor(clusterEntity.getCluster_color()));
 
         downloadBtn = (Button) (view.findViewById(R.id.download_btn));
-        updateBtn = (Button) (view.findViewById(R.id.update_btn));
+        //updateBtn = (Button) (view.findViewById(R.id.update_btn));
 
         downloadBtn.setTag(i);
 

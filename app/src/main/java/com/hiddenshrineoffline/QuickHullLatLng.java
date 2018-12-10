@@ -9,7 +9,7 @@ import java.util.List;
 public class QuickHullLatLng {
 
     public ArrayList<LatLng> quickHull(List<LatLng> points) {
-        if (points.size() <= 3) {
+        if (points.size() < 3) {
             ArrayList<LatLng> clonedList = new ArrayList<>(points);
             //clonedList.ensureCapacity(points.size());
             //Collections.copy(clonedList, points);
