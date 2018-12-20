@@ -2,10 +2,19 @@ package com.hiddenshrineoffline;
 
 import android.content.Context;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 public class FileManager {
+
+    /* Always use readObjectFile unless is small string
+     * @param filename
+     * @param context
+     * @return
+     */
 
     public String readFile(String filename, Context context){
         FileInputStream inputStream;
@@ -34,6 +43,38 @@ public class FileManager {
             outputStream.write(fileContents.getBytes());
             outputStream.close();
         }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+
+    public Object readObjectFile(String filename, Context context){
+        Object outputObject;
+        outputObject = new Object();
+
+        try{
+            File file;
+            file = new File(context.getFilesDir(), filename);
+            ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file));
+            outputObject = objectInputStream.readObject();
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return outputObject;
+    }
+
+    public void saveObjectFile(String filename, Context context, Object object){
+        try {
+            File file;
+            file = new File(context.getFilesDir(), filename);
+            ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
+            outputStream.writeObject(object);
+            outputStream.flush();
+            outputStream.close();
+        }
+        catch (Exception e){
             e.printStackTrace();
         }
     }

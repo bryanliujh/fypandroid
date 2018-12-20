@@ -30,13 +30,16 @@ public class ClusterListActivity extends AppCompatActivity {
         clusterListView = (ListView) findViewById(R.id.clusterList);
 
         Bundle extras = getIntent().getExtras();
-        if (extras != null){
 
+        if (extras != null){
             colorArr = extras.getStringArray("colorArr");
             initClusterArrayList(colorArr);
             clusterListViewAdapter = new ClusterListViewAdapter(this, clusterArrayList);
             clusterListView.setAdapter(clusterListViewAdapter);
         }
+
+
+
 
 
     }

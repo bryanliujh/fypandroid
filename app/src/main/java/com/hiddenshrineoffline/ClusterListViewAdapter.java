@@ -128,7 +128,7 @@ public class ClusterListViewAdapter extends BaseAdapter{
         @Override
         protected Void doInBackground(Void... arg0) {
             fileManager = new FileManager();
-            jsonStr = fileManager.readFile("mapjson",context);
+            jsonStr = (String) fileManager.readObjectFile("mapjson", context);
             return null;
         }
 

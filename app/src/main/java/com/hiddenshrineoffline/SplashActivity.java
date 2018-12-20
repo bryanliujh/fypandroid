@@ -10,6 +10,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 public class SplashActivity extends AppCompatActivity {
 
     private ProgressDialog pDialog;
@@ -18,11 +27,18 @@ public class SplashActivity extends AppCompatActivity {
     private static AppDatabase INSTANCE;
     private FileManager fileManager;
     private FileManager fileManager2;
-    private FileManager coordFileManager;
+    private String jsonStr;
+    private String jsonStrKmeans;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        context = getApplicationContext();
+
+        jsonStr = null;
+        jsonStrKmeans = null;
 
         new GetGeoJsonMap().execute();
     }
@@ -54,25 +70,26 @@ public class SplashActivity extends AppCompatActivity {
                 HttpHandler sh2 = new HttpHandler();
                 // Making a request to url and getting response
 
-                String jsonStr = sh.makeServiceCall(url);
+                jsonStr = sh.makeServiceCall(url);
                 fileManager = new FileManager();
-                fileManager.saveFile("mapjson", jsonStr,getApplicationContext());
+                fileManager.saveObjectFile("mapjson", context, jsonStr);
 
-                String jsonStr2 = sh2.makeServiceCall(url2);
+                jsonStrKmeans = sh2.makeServiceCall(url2);
                 fileManager2 = new FileManager();
-                fileManager2.saveFile("kmeansjson", jsonStr2, getApplicationContext());
+                fileManager2.saveObjectFile("kmeansjson", context, jsonStrKmeans);
 
 
                 Log.e("test", "Response from url: " + jsonStr);
-                if (jsonStr != null) {
+                if (jsonStr != null && jsonStrKmeans != null) {
                     try {
 
 
                     } catch (Exception e) {
-                        Log.e("test2", "Json parsing error: " + e.getMessage());
+                        Log.e("jsonStr: ", "Json parsing error: " + e.getMessage());
                     }
-                } else {
-                    Log.e("test3", "Couldn't get json from server.");
+                }
+                else {
+                    Log.e("no json", "Couldn't get json from server.");
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -95,10 +112,24 @@ public class SplashActivity extends AppCompatActivity {
             if (pDialog.isShowing()) {
                 pDialog.dismiss();
             }
-            // Start home activity
-            startActivity(new Intent(SplashActivity.this, MainActivity.class));
-            // close splash activity
-            finish();
+            new extractLatLng().execute();
+            new extractKmeansLatLng().execute();
+
+            if (jsonStr != null && jsonStrKmeans != null) {
+                // Start home activity
+                Intent MainActivity = new Intent(SplashActivity.this, MainActivity.class);
+                //MainActivity.putExtra("jsonStr", jsonStr);
+                //MainActivity.putExtra("jsonStrKmeans", jsonStrKmeans);
+                startActivity(MainActivity);
+                // close splash activity
+                finish();
+            } else if (jsonStr == null){
+                Log.e("null string", "null json string re-extraction");
+                new extractLatLng().execute();
+            }else{
+                Log.e("null string2", "null kmeans json string re-extraction");
+                new extractKmeansLatLng().execute();
+            }
         }
 
 
@@ -118,6 +149,124 @@ public class SplashActivity extends AppCompatActivity {
         }
         return INSTANCE;
     }
+
+
+    private class extractLatLng extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            HashMap<Integer, ArrayList<String>> hashMap = new HashMap<>();
+            try {
+
+                JSONObject jsonObject = new JSONObject(jsonStr);
+                JSONArray features = jsonObject.getJSONArray("features");
+                for (int i=0; i<features.length(); i++){
+                    JSONObject feature = features.getJSONObject(i);
+                    //get cluster id
+                    JSONObject properties = feature.getJSONObject("properties");
+                    Integer circleID = Integer.parseInt(properties.getString("circleID"));
+                    //get coordinates of pts
+                    JSONObject geometry = feature.getJSONObject("geometry");
+                    JSONArray coord_arr = geometry.getJSONArray("coordinates");
+                    double lon = (double) coord_arr.get(0);
+                    double lat = (double) coord_arr.get(1);
+                    String coord = String.valueOf(lon) + ',' + String.valueOf(lat);
+                    hashMap.computeIfAbsent(circleID, k -> new ArrayList<>()).add(coord);
+                }
+
+
+            }
+            catch(Exception e){
+                Log.e("json_error","Error Extracting Latitude and Longitude");
+            }
+
+
+            try{
+                File file = new File(context.getFilesDir(), "lat_lon_file");
+                ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
+                outputStream.writeObject(hashMap);
+                outputStream.flush();
+                outputStream.close();
+            }
+            catch(Exception e){
+                Log.e("save_error","Error Saving Latitude and Longitude");
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+
+            Toast.makeText(getApplicationContext(), "Extracting of Latitude and Longitude Finished", Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+    private class extractKmeansLatLng extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+            HashMap<Integer, ArrayList<String>> hashMap = new HashMap<>();
+            HashMap<Integer, String> hashMapCentroid = new HashMap<>();
+            try {
+
+                JSONObject jsonObject = new JSONObject(jsonStrKmeans);
+                JSONArray features = jsonObject.getJSONArray("features");
+                for (int i=0; i<features.length(); i++){
+                    JSONObject feature = features.getJSONObject(i);
+                    //get cluster id
+                    JSONObject properties = feature.getJSONObject("properties");
+                    //check if approved is centroid, if it is ignore it
+                    if (!properties.getString("approved").equals("centroid")) {
+                        Integer circleID = Integer.parseInt(properties.getString("circleID"));
+                        //get coordinates of pts
+                        JSONObject geometry = feature.getJSONObject("geometry");
+                        JSONArray coord_arr = geometry.getJSONArray("coordinates");
+                        double lon = (double) coord_arr.get(0);
+                        double lat = (double) coord_arr.get(1);
+                        String coord = String.valueOf(lon) + ',' + String.valueOf(lat);
+                        hashMap.computeIfAbsent(circleID, k -> new ArrayList<>()).add(coord);
+                    } else {
+                        hashMapCentroid.put(Integer.parseInt(properties.getString("circleID")), properties.getString("name"));
+                    }
+                }
+
+
+            }
+            catch(Exception e){
+                Log.e("json_error","Error Extracting Latitude and Longitude");
+            }
+
+
+            try{
+
+                //save kmeans lat lon file
+                FileManager fileManager = new FileManager();
+                fileManager.saveObjectFile("kmeans_lat_lon_file", context, hashMap);
+
+                //save centroid cluster id
+                FileManager fileManager2 = new FileManager();
+                fileManager2.saveObjectFile("centroid_file", context, hashMapCentroid);
+            }
+            catch(Exception e){
+                Log.e("save_error","Error Saving Latitude and Longitude");
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+
+            Toast.makeText(context, "Extracting of Latitude and Longitude Finished", Toast.LENGTH_SHORT).show();
+
+        }
+    }
+
+
 
 
 

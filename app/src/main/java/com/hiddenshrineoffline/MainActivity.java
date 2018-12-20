@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.RectF;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -23,7 +22,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.Mapbox;
@@ -39,11 +37,6 @@ import com.mapbox.mapboxsdk.style.layers.CircleLayer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -205,10 +198,21 @@ public class MainActivity extends AppCompatActivity
         mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(gpsTracker.getLatitude(),gpsTracker.getLongitude()), 13.0));
 
         //set mapsource
+        /*
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            jsonStr = extras.getString("jsonStr");
+            jsonStrKmeans = extras.getString("jsonStrKmeans");
+        }*/
+
+
         fileManager = new FileManager();
-        jsonStr = fileManager.readFile("mapjson",context);
-        new extractLatLng().execute();
-        jsonStrKmeans = fileManager.readFile("kmeansjson",context);
+        jsonStr = (String) fileManager.readObjectFile("mapjson", context);
+        //new extractLatLng().execute();
+
+        jsonStrKmeans = (String) fileManager.readObjectFile("kmeansjson", context);
+        //new extractKmeansLatLng().execute();
+
         mapLayerSource.addMapSource(mapboxMap, jsonStr, SOURCE_ID);
 
         //set maplayer
@@ -358,58 +362,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private class extractLatLng extends AsyncTask<Void, Void, Void> {
 
-        @Override
-        protected Void doInBackground(Void... voids) {
-            HashMap<Integer, ArrayList<String>> hashMap = new HashMap<>();
-            try {
-
-                JSONObject jsonObject = new JSONObject(jsonStr);
-                JSONArray features = jsonObject.getJSONArray("features");
-                for (int i=0; i<features.length(); i++){
-                    JSONObject feature = features.getJSONObject(i);
-                    //get cluster id
-                    JSONObject properties = feature.getJSONObject("properties");
-                    Integer circleID = Integer.parseInt(properties.getString("circleID"));
-                    //get coordinates of pts
-                    JSONObject geometry = feature.getJSONObject("geometry");
-                    JSONArray coord_arr = geometry.getJSONArray("coordinates");
-                    double lon = (double) coord_arr.get(0);
-                    double lat = (double) coord_arr.get(1);
-                    String coord = String.valueOf(lon) + ',' + String.valueOf(lat);
-                    hashMap.computeIfAbsent(circleID, k -> new ArrayList<>()).add(coord);
-                }
-
-
-            }
-            catch(Exception e){
-                Log.e("json_error","Error Extracting Latitude and Longitude");
-            }
-
-
-            try{
-                File file = new File(context.getFilesDir(), "lat_lon_file");
-                ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
-                outputStream.writeObject(hashMap);
-                outputStream.flush();
-                outputStream.close();
-            }
-            catch(Exception e){
-                Log.e("save_error","Error Saving Latitude and Longitude");
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-
-            Toast.makeText(getApplicationContext(), "Extracting of Latitude and Longitude Finished", Toast.LENGTH_SHORT).show();
-
-        }
-    }
 
 
     //Calculate the convex hull
@@ -418,10 +371,9 @@ public class MainActivity extends AppCompatActivity
         JSONObject featureCollection = new JSONObject();
         JSONArray features = new JSONArray();
         try {
-            File file = new File(context.getFilesDir(), "lat_lon_file");
-            ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file));
-            hashMap = (HashMap<Integer, ArrayList<String>>) objectInputStream.readObject();
 
+            FileManager fileManager = new FileManager();
+            hashMap = (HashMap<Integer, ArrayList<String>>) fileManager.readObjectFile("lat_lon_file", context);
 
             //create geojson root
             featureCollection.put("type", "FeatureCollection");

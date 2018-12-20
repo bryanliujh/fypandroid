@@ -6,10 +6,8 @@ import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.RectF;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -20,11 +18,6 @@ import com.mapbox.mapboxsdk.style.layers.CircleLayer;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,9 +46,9 @@ public class KMeansCluster {
     private final int CLUSTER_NUM = 14;
 
     public void initKMeans(Context context, MapboxMap mapboxMap, String[] colorArr, String jsonStr){
-        context = this.context;
-        mapboxMap = this.mapboxMap;
-        jsonStr = this.jsonStr;
+        this.jsonStr = jsonStr;
+        this.context = context;
+        this.mapboxMap = mapboxMap;
 
         stops = new Expression.Stop[CLUSTER_NUM];
         for (int i=0; i<CLUSTER_NUM; i++){
@@ -74,63 +67,6 @@ public class KMeansCluster {
 
     }
 
-    private class extractLatLng extends AsyncTask<Void, Void, Void> {
-
-        @Override
-        protected Void doInBackground(Void... voids) {
-            HashMap<Integer, ArrayList<String>> hashMap = new HashMap<>();
-            try {
-
-                JSONObject jsonObject = new JSONObject(jsonStr);
-                JSONArray features = jsonObject.getJSONArray("features");
-                for (int i=0; i<features.length(); i++){
-                    JSONObject feature = features.getJSONObject(i);
-                    //get cluster id
-                    JSONObject properties = feature.getJSONObject("properties");
-                    if (!properties.getString("approved").equals("centroid")) {
-                        Integer circleID = Integer.parseInt(properties.getString("circleID"));
-                        //get coordinates of pts
-                        JSONObject geometry = feature.getJSONObject("geometry");
-                        JSONArray coord_arr = geometry.getJSONArray("coordinates");
-                        double lon = (double) coord_arr.get(0);
-                        double lat = (double) coord_arr.get(1);
-                        String coord = String.valueOf(lon) + ',' + String.valueOf(lat);
-                        hashMap.computeIfAbsent(circleID, k -> new ArrayList<>()).add(coord);
-                    }
-                }
-
-
-            }
-            catch(Exception e){
-                Log.e("json_error","Error Extracting Latitude and Longitude");
-            }
-
-
-            try{
-                File file = new File(context.getFilesDir(), "lat_lon_file");
-                ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
-                outputStream.writeObject(hashMap);
-                outputStream.flush();
-                outputStream.close();
-            }
-            catch(Exception e){
-                Log.e("save_error","Error Saving Latitude and Longitude");
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            super.onPostExecute(result);
-
-            Toast.makeText(context, "Extracting of Latitude and Longitude Finished", Toast.LENGTH_SHORT).show();
-
-        }
-    }
-
-
-
 
 
     //Calculate the convex hull
@@ -139,10 +75,8 @@ public class KMeansCluster {
         JSONObject featureCollection = new JSONObject();
         JSONArray features = new JSONArray();
         try {
-            File file = new File(context.getFilesDir(), "kmeans_lat_lon_file");
-            ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream(file));
-            hashMap = (HashMap<Integer, ArrayList<String>>) objectInputStream.readObject();
-
+            FileManager fileManager = new FileManager();
+            hashMap = (HashMap<Integer, ArrayList<String>>) fileManager.readObjectFile("kmeans_lat_lon_file", context);
 
             //create geojson root
             featureCollection.put("type", "FeatureCollection");
