@@ -18,10 +18,12 @@ public class DownloadCluster {
     private ArrayList<ShrineEntity> shrineArrayList;
     private ArrayList<String> newUidList;
     private String cluster_id;
+    private String jsonFileName;
 
-    public void downloadCluster(Context context, String featureJSON){
+    public void downloadCluster(Context context, String jsonFileName, String featureJSON){
         try {
             this.context = context;
+            this.jsonFileName = jsonFileName;
             JSONObject featureObj = new JSONObject(featureJSON);
             JSONObject properties = featureObj.getJSONObject("properties");
             cluster_id = properties.getString("circleID");
@@ -34,9 +36,10 @@ public class DownloadCluster {
         }
     }
 
-    public void downloadClusterList(Context context, String cluster_id){
+    public void downloadClusterList(Context context, String jsonFileName, String cluster_id){
         try {
             this.context = context;
+            this.jsonFileName = jsonFileName;
             this.cluster_id = cluster_id;
 
             new ImageSaveInBackground().execute();
@@ -59,7 +62,7 @@ public class DownloadCluster {
         @Override
         protected Void doInBackground(Void... arg0) {
             fileManager = new FileManager();
-            jsonStr = (String) fileManager.readObjectFile("mapjson",context);
+            jsonStr = (String) fileManager.readObjectFile(jsonFileName,context);
             return null;
         }
 
@@ -137,7 +140,7 @@ public class DownloadCluster {
     }
 
 
-
+   //TODO: change the DB To accomodate both kmeans and normal cluster
 
     private class SaveDBInBackground extends AsyncTask<Void, Void, Void>{
         private final AppDatabase mDB;

@@ -1,11 +1,14 @@
 package com.hiddenshrineoffline;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ClusterListActivity extends AppCompatActivity {
 
@@ -14,13 +17,32 @@ public class ClusterListActivity extends AppCompatActivity {
     private int clusterNo;
     private ClusterListViewAdapter clusterListViewAdapter;
     private ListView clusterListView;
+    private SharedPreferences sharedPreferences;
+    private Context context;
+    private Boolean region_bool;
+    private String jsonFileName;
+    HashMap<Integer, String> hashMapCentroid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cluster_list);
 
-        clusterNo = Integer.parseInt(getString(R.string.CLUSTER_NUM));
+        context = getApplicationContext();
+        hashMapCentroid = new HashMap<>();
+        sharedPreferences = context.getSharedPreferences("cluster_settings", context.MODE_PRIVATE);
+        region_bool = sharedPreferences.getBoolean("region_bool", false);
+
+        if (region_bool) {
+            clusterNo = Integer.parseInt(getString(R.string.KMEANS_CLUSTER_NUM));
+            jsonFileName = "kmeansjson";
+            FileManager fileManager = new FileManager();
+            hashMapCentroid = (HashMap<Integer, String>) fileManager.readObjectFile("centroid_file", context);
+        }else{
+            clusterNo = Integer.parseInt(getString(R.string.CLUSTER_NUM));
+            jsonFileName = "mapjson";
+            hashMapCentroid = null;
+        }
 
         // Get a support ActionBar corresponding to this toolbar
         ActionBar ab = getSupportActionBar();
@@ -35,8 +57,8 @@ public class ClusterListActivity extends AppCompatActivity {
 
         if (extras != null){
             colorArr = extras.getStringArray("colorArr");
-            initClusterArrayList(colorArr);
-            clusterListViewAdapter = new ClusterListViewAdapter(this, clusterArrayList);
+            clusterArrayList = initClusterArrayList(colorArr);
+            clusterListViewAdapter = new ClusterListViewAdapter(this, jsonFileName, region_bool, hashMapCentroid, clusterArrayList);
             clusterListView.setAdapter(clusterListViewAdapter);
         }
 

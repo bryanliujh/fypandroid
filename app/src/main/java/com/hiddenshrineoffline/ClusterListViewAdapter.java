@@ -1,6 +1,5 @@
 package com.hiddenshrineoffline;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -12,6 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class ClusterListViewAdapter extends BaseAdapter{
 
@@ -19,27 +19,18 @@ public class ClusterListViewAdapter extends BaseAdapter{
     private ArrayList<ClusterEntity> clusterArrayList;
     private Button downloadBtn;
     private Button updateBtn;
-    private FileManager fileManager;
 
     private String cluster_id;
-    private String jsonStr;
-    private String shrineUUID;
-    private String name;
-    private String status;
-    private String size;
-    private String materials;
-    private String deity;
-    private String religion;
-    private String offerings;
-    private String imageURL;
-    private String circleID;
-    private ArrayList<ShrineEntity> shrineArrayList;
-    private ArrayList<String> newUidList;
-    private ProgressDialog pDialog;
+    private String jsonFileName;
+    private Boolean region_bool;
+    private HashMap<Integer, String> hashMapCentroid;
 
-    public ClusterListViewAdapter(Context context, ArrayList<ClusterEntity> clusterArrayList){
+    public ClusterListViewAdapter(Context context, String jsonFileName, Boolean region_bool, HashMap<Integer, String> hashMapCentroid, ArrayList<ClusterEntity> clusterArrayList){
         this.context = context;
         this.clusterArrayList = clusterArrayList;
+        this.jsonFileName = jsonFileName;
+        this.region_bool= region_bool;
+        this.hashMapCentroid = hashMapCentroid;
     }
     @Override
     public int getCount() {
@@ -64,7 +55,7 @@ public class ClusterListViewAdapter extends BaseAdapter{
             LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
             view = layoutInflater.inflate(R.layout.cluster_listview, viewGroup, false);
             clusterViewHolder = new ClusterViewHolder();
-            clusterViewHolder.number = (TextView) view.findViewById(R.id.cluster_id);
+            clusterViewHolder.cluster_name = (TextView) view.findViewById(R.id.cluster_id);
             clusterViewHolder.color = (TextView) view.findViewById(R.id.cluster_color);
             view.setTag(clusterViewHolder);
         }
@@ -73,7 +64,15 @@ public class ClusterListViewAdapter extends BaseAdapter{
         }
 
         ClusterEntity clusterEntity = (ClusterEntity) getItem(i);
-        clusterViewHolder.number.setText(String.valueOf(clusterEntity.getCluster_uid()));
+        if (region_bool) {
+            //TODO: format the list name
+            //TODO: retrieve the cluster nearest to my location
+            clusterViewHolder.cluster_name.setText(hashMapCentroid.get(clusterEntity.getCluster_uid()));
+        }
+        else
+        {
+            clusterViewHolder.cluster_name.setText("CLUSTER " + String.valueOf(clusterEntity.getCluster_uid()));
+        }
         GradientDrawable clusterBg = (GradientDrawable) clusterViewHolder.color.getBackground();
         clusterBg.setColor(Color.parseColor(clusterEntity.getCluster_color()));
 
@@ -89,7 +88,7 @@ public class ClusterListViewAdapter extends BaseAdapter{
                 ClusterEntity downloadClusterEntity = (ClusterEntity) getItem(position);
                 cluster_id = String.valueOf(downloadClusterEntity.getCluster_uid());
                 DownloadCluster downloadCluster = new DownloadCluster();
-                downloadCluster.downloadClusterList(context, cluster_id);
+                downloadCluster.downloadClusterList(context, jsonFileName, cluster_id);
             }
         });
 
@@ -100,7 +99,7 @@ public class ClusterListViewAdapter extends BaseAdapter{
 
 
     public class ClusterViewHolder{
-        TextView number;
+        TextView cluster_name;
         TextView color;
     }
 

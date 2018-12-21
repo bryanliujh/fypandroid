@@ -1,15 +1,12 @@
 package com.hiddenshrineoffline;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.PointF;
-import android.graphics.RectF;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -19,7 +16,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -34,13 +30,7 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.style.expressions.Expression;
 import com.mapbox.mapboxsdk.style.layers.CircleLayer;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.mapbox.mapboxsdk.style.expressions.Expression.color;
 import static com.mapbox.mapboxsdk.style.expressions.Expression.stop;
@@ -300,10 +290,11 @@ public class MainActivity extends AppCompatActivity
                 //cluster by region or proximity
                 if (region_bool) {
                     KMeansCluster kMeansCluster = new KMeansCluster();
-                    kMeansCluster.initKMeans(MainActivity.this, mapboxMap, colorArr, jsonStrKmeans);
+                    clusterListener = kMeansCluster.initKMeans(MainActivity.this, mapboxMap, colorArr);
                     item.setChecked(true);
                 } else {
-                    calCluster();
+                    ClusterCreation clusterCreation = new ClusterCreation();
+                    clusterListener = clusterCreation.initClusterCreation(MainActivity.this, mapboxMap, stops, "lat_lon_file", "mapjson", SOURCE_ID, LAYER_ID, K_SOURCE_ID, K_LAYER_ID);
                     item.setChecked(true);
                 }
 
@@ -370,133 +361,6 @@ public class MainActivity extends AppCompatActivity
 
 
 
-    //Calculate the convex hull
-    public void calCluster(){
-        HashMap<Integer, ArrayList<String>> hashMap = new HashMap<>();
-        JSONObject featureCollection = new JSONObject();
-        JSONArray features = new JSONArray();
-        try {
-
-            FileManager fileManager = new FileManager();
-            hashMap = (HashMap<Integer, ArrayList<String>>) fileManager.readObjectFile("lat_lon_file", context);
-
-            //create geojson root
-            featureCollection.put("type", "FeatureCollection");
-
-
-        }
-        catch(Exception e){
-            Log.e("read_error","Error Reading Latitude and Longitude");
-        }
-
-        for (Map.Entry<Integer, ArrayList<String>> entry : hashMap.entrySet()){
-
-            List<LatLng> points = new ArrayList<>();
-            for (String e : entry.getValue()){
-                String[] coord = e.split(",");
-                double lon = Double.parseDouble(coord[0]);
-                double lat = Double.parseDouble(coord[1]);
-                LatLng location = new LatLng(lat,lon);
-                points.add(location);
-            }
-
-            QuickHullLatLng quickHullLatLng = new QuickHullLatLng();
-            ArrayList<LatLng> hullLatLng = new ArrayList<>(quickHullLatLng.quickHull(points));
-
-            JSONArray coord_arr_list = new JSONArray();
-            JSONArray coord_arr_list2 = new JSONArray();
-
-            //note: first and last coordinate points must be the same or else you will get malformed polygon
-
-                try {
-                    for (LatLng coord_pt : hullLatLng) {
-                        JSONArray coord_pt_json = new JSONArray();
-                        coord_pt_json.put(coord_pt.getLongitude());
-                        coord_pt_json.put(coord_pt.getLatitude());
-                        coord_arr_list.put(coord_pt_json);
-                    }
-                    //fix the malformed polygon bug by making the first element same as the last
-                    coord_arr_list.put(coord_arr_list.getJSONArray(0));
-                }
-                catch(Exception ex){ }
-
-            //geojson format need to have another array over another array
-            coord_arr_list2.put(coord_arr_list);
-            //create geojson features array
-            features = buildGeojson(features, coord_arr_list2, entry.getKey());
-
-        }
-
-        try {
-            featureCollection.put("features", features);
-        }catch(Exception e){
-            Log.e("json_error_features","Unable to add features array to collection");
-        }
-
-        if (mapLayerSource.mapSourceExist(mapboxMap,SOURCE_ID) == true) {
-            drawCluster(featureCollection);
-        }
-
-    }
-
-    /*
-    public void drawCluster(ArrayList<LatLng> points, Integer color_index){
-        mapboxMap.addPolygon(new PolygonOptions()
-                .addAll(points)
-                .fillColor(Color.parseColor(colorArr[color_index])));
-    }*/
-
-    public void drawCluster(JSONObject featureCollection){
-        String featureCollection_str = featureCollection.toString();
-        mapLayerSource.addMapSource(mapboxMap, featureCollection_str, CLUSTER_SOURCE_ID);
-        mapLayerSource.addBorderLayer(mapboxMap, CLUSTER_LAYER_ID, CLUSTER_SOURCE_ID, stops);
-        setClusterClickListener();
-    }
-
-    public void setClusterClickListener(){
-        clusterListener = new MapboxMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(@NonNull LatLng point) {
-                PointF pointf = mapboxMap.getProjection().toScreenLocation(point);
-                RectF rectF = new RectF(pointf.x - 10, pointf.y - 10, pointf.x + 10, pointf.y + 10);
-                List<Feature> featureList = mapboxMap.queryRenderedFeatures(rectF, CLUSTER_LAYER_ID);
-                if (featureList.size() > 0) {
-                    for (Feature feature : featureList) {
-                        Log.d("Feature found with %1$s", feature.toJson());
-                        //Toast.makeText(MainActivity.this, feature.toJson(), Toast.LENGTH_SHORT).show();
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                        builder.setTitle("Do you want to download cluster?");
-                        builder.setPositiveButton("Download", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                DownloadCluster downloadCluster = new DownloadCluster();
-                                downloadCluster.downloadCluster(getApplicationContext(), feature.toJson());
-                            }
-                        });
-                        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                            }
-                        });
-
-                        AlertDialog dialog = builder.create();
-                        dialog.show();
-
-                    }
-                }
-            }
-        };
-        mapboxMap.addOnMapClickListener(clusterListener);
-
-        // Dismiss the progress dialog
-        if (pDialog.isShowing()) {
-            pDialog.dismiss();
-        }
-    }
-
-
-
     @Override
     public void onStart() {
         super.onStart();
@@ -546,28 +410,5 @@ public class MainActivity extends AppCompatActivity
         mapView.onSaveInstanceState(outState);
     }
 
-    public JSONArray buildGeojson(JSONArray features, JSONArray coord_arr_list, Integer color_index){
-
-        try {
-
-            JSONObject feature = new JSONObject();
-            JSONObject geometry = new JSONObject();
-            JSONObject properties = new JSONObject();
-
-            feature.put("type", "Feature");
-            geometry.put("coordinates", coord_arr_list);
-            geometry.put("type", "Polygon");
-            feature.put("geometry", geometry);
-            properties.put("circleID", color_index.toString());
-            feature.put("properties", properties);
-            features.put(feature);
-
-        }
-        catch (Exception e){
-            Log.e("json_error_featureArr","Unable to add feature to features array");
-        }
-
-        return features;
-    }
 
 }
