@@ -34,6 +34,19 @@ public class DownloadCluster {
         }
     }
 
+    public void downloadClusterList(Context context, String cluster_id){
+        try {
+            this.context = context;
+            this.cluster_id = cluster_id;
+
+            new ImageSaveInBackground().execute();
+
+        }
+        catch (Exception e) {
+
+        }
+    }
+
 
     private class ImageSaveInBackground extends AsyncTask<Void, Void, Void> {
         @Override
@@ -46,74 +59,79 @@ public class DownloadCluster {
         @Override
         protected Void doInBackground(Void... arg0) {
             fileManager = new FileManager();
-            jsonStr = fileManager.readFile("mapjson",context);
+            jsonStr = (String) fileManager.readObjectFile("mapjson",context);
             return null;
         }
 
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            try {
-                String circleID;
-                String shrineUUID;
-                String name;
-                String status;
-                String size;
-                String materials;
-                String deity;
-                String religion;
-                String offerings;
-                String imageURL;
+            NetworkConnection networkConnection = new NetworkConnection();
+            if (networkConnection.isNetworkConnected(context)) {
+                try {
+                        String circleID;
+                        String shrineUUID;
+                        String name;
+                        String status;
+                        String size;
+                        String materials;
+                        String deity;
+                        String religion;
+                        String offerings;
+                        String imageURL;
 
-                //use array difference to find the difference in array (for update only)
-                shrineArrayList = new ArrayList<ShrineEntity>();
-                newUidList = new ArrayList<String>();
-                JSONObject jsonObj = new JSONObject(jsonStr);
-                JSONArray features = jsonObj.getJSONArray("features");
-                for (int i=0; i<features.length(); i++){
-                    JSONObject feature = features.getJSONObject(i);
-                    JSONObject properties = feature.getJSONObject("properties");
-                    circleID = properties.getString("circleID");
-                    if (cluster_id.equals(circleID)) {
-                        ShrineEntity shrineEntity = new ShrineEntity();
-                        //get value from the json string
-                        shrineUUID = properties.getString("shrineUUID");
-                        name = properties.getString("name");
-                        status = properties.getString("status");
-                        size = properties.getString("size");
-                        materials = properties.getString("materials");
-                        deity = properties.getString("deity");
-                        religion = properties.getString("religion");
-                        offerings = properties.getString("offerings");
-                        imageURL = properties.getString("imageURL");
+                        //use array difference to find the difference in array (for update only)
+                        shrineArrayList = new ArrayList<ShrineEntity>();
+                        newUidList = new ArrayList<String>();
+                        JSONObject jsonObj = new JSONObject(jsonStr);
+                        JSONArray features = jsonObj.getJSONArray("features");
+                        for (int i = 0; i < features.length(); i++) {
+                            JSONObject feature = features.getJSONObject(i);
+                            JSONObject properties = feature.getJSONObject("properties");
+                            circleID = properties.getString("circleID");
+                            if (cluster_id.equals(circleID)) {
+                                ShrineEntity shrineEntity = new ShrineEntity();
+                                //get value from the json string
+                                shrineUUID = properties.getString("shrineUUID");
+                                name = properties.getString("name");
+                                status = properties.getString("status");
+                                size = properties.getString("size");
+                                materials = properties.getString("materials");
+                                deity = properties.getString("deity");
+                                religion = properties.getString("religion");
+                                offerings = properties.getString("offerings");
+                                imageURL = properties.getString("imageURL");
 
 
-                        //download image from imgur
-                        ImageDownload imageDownload = new ImageDownload();
-                        imageDownload.initPicasso(context, imageURL, shrineUUID);
+                                //download image from imgur
+                                ImageDownload imageDownload = new ImageDownload();
+                                imageDownload.initPicasso(context, imageURL, shrineUUID);
 
-                        //create new shrine entity and add in list
-                        shrineEntity.setShrine_uid(shrineUUID);
-                        shrineEntity.setShrine_name(name);
-                        shrineEntity.setShrine_status(status);
-                        shrineEntity.setShrine_size(size);
-                        shrineEntity.setShrine_materials(materials);
-                        shrineEntity.setShrine_deity(deity);
-                        shrineEntity.setShrine_religion(religion);
-                        shrineEntity.setShrine_offerings(offerings);
-                        shrineEntity.setShrine_imageURL(imageURL);
-                        shrineEntity.setCluster_uid(Integer.parseInt(cluster_id));
-                        shrineArrayList.add(shrineEntity);
-                        newUidList.add(shrineUUID);
+                                //create new shrine entity and add in list
+                                shrineEntity.setShrine_uid(shrineUUID);
+                                shrineEntity.setShrine_name(name);
+                                shrineEntity.setShrine_status(status);
+                                shrineEntity.setShrine_size(size);
+                                shrineEntity.setShrine_materials(materials);
+                                shrineEntity.setShrine_deity(deity);
+                                shrineEntity.setShrine_religion(religion);
+                                shrineEntity.setShrine_offerings(offerings);
+                                shrineEntity.setShrine_imageURL(imageURL);
+                                shrineEntity.setCluster_uid(Integer.parseInt(cluster_id));
+                                shrineArrayList.add(shrineEntity);
+                                newUidList.add(shrineUUID);
 
-                    }
+                            }
+                        }
                 }
+                catch(Exception e){
+                }
+                Toast.makeText(context, "Images downloaded", Toast.LENGTH_SHORT).show();
+                new SaveDBInBackground(AppDatabase.getDatabase(context)).execute();
             }
-            catch(Exception e){
-
+            else{
+                Toast.makeText(context, "Network connection lost, please retry download", Toast.LENGTH_SHORT).show();
             }
-
-            new SaveDBInBackground(AppDatabase.getDatabase(context)).execute();
 
         }
     }
@@ -160,7 +178,6 @@ public class DownloadCluster {
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            Toast.makeText(context, "Saved in DB", Toast.LENGTH_SHORT);
         }
     }
 

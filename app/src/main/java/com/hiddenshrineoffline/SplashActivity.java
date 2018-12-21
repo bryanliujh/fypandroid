@@ -40,7 +40,30 @@ public class SplashActivity extends AppCompatActivity {
         jsonStr = null;
         jsonStrKmeans = null;
 
-        new GetGeoJsonMap().execute();
+        NetworkConnection networkConnection = new NetworkConnection();
+        //check if network is connected, if not connected do not download json string
+        if(networkConnection.isNetworkConnected(getApplicationContext())) {
+            new GetGeoJsonMap().execute();
+        }
+        else{
+            fileManager = new FileManager();
+            fileManager2 = new FileManager();
+            jsonStr = (String) fileManager.readObjectFile("mapjson", context);
+            jsonStrKmeans = (String) fileManager2.readObjectFile("kmeansjson", context);
+
+            new extractLatLng().execute();
+            new extractKmeansLatLng().execute();
+            startHomeActivity();
+        }
+
+    }
+
+    public void startHomeActivity(){
+        // Start home activity
+        Intent MainActivity = new Intent(SplashActivity.this, MainActivity.class);
+        startActivity(MainActivity);
+        // close splash activity
+        finish();
     }
 
 
@@ -62,46 +85,42 @@ public class SplashActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(Void... arg0) {
+            HttpHandler sh = new HttpHandler();
+            HttpHandler sh2 = new HttpHandler();
+            // Making a request to url and getting response
 
-            NetworkConnection networkConnection = new NetworkConnection();
-            //check if network is connected, if not connected do not download json string
-            if(networkConnection.isNetworkConnected(getApplicationContext())) {
-                HttpHandler sh = new HttpHandler();
-                HttpHandler sh2 = new HttpHandler();
-                // Making a request to url and getting response
+            jsonStr = sh.makeServiceCall(url);
+            fileManager = new FileManager();
+            fileManager.saveObjectFile("mapjson", context, jsonStr);
 
-                jsonStr = sh.makeServiceCall(url);
-                fileManager = new FileManager();
-                fileManager.saveObjectFile("mapjson", context, jsonStr);
-
-                jsonStrKmeans = sh2.makeServiceCall(url2);
-                fileManager2 = new FileManager();
-                fileManager2.saveObjectFile("kmeansjson", context, jsonStrKmeans);
+            jsonStrKmeans = sh2.makeServiceCall(url2);
+            fileManager2 = new FileManager();
+            fileManager2.saveObjectFile("kmeansjson", context, jsonStrKmeans);
 
 
-                Log.e("test", "Response from url: " + jsonStr);
-                if (jsonStr != null && jsonStrKmeans != null) {
-                    try {
+            Log.e("test", "Response from url: " + jsonStr);
+            if (jsonStr != null && jsonStrKmeans != null) {
+                try {
 
 
-                    } catch (Exception e) {
-                        Log.e("jsonStr: ", "Json parsing error: " + e.getMessage());
-                    }
-                }
-                else {
-                    Log.e("no json", "Couldn't get json from server.");
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(),
-                                    "Couldn't get json from server. Check LogCat for possible errors!",
-                                    Toast.LENGTH_LONG)
-                                    .show();
-                        }
-                    });
-
+                } catch (Exception e) {
+                    Log.e("jsonStr: ", "Json parsing error: " + e.getMessage());
                 }
             }
+            else {
+                Log.e("no json", "Couldn't get json from server.");
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),
+                                "Couldn't get json from server. Check LogCat for possible errors!",
+                                Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+
+            }
+
             return null;
         }
 
@@ -116,13 +135,7 @@ public class SplashActivity extends AppCompatActivity {
             new extractKmeansLatLng().execute();
 
             if (jsonStr != null && jsonStrKmeans != null) {
-                // Start home activity
-                Intent MainActivity = new Intent(SplashActivity.this, MainActivity.class);
-                //MainActivity.putExtra("jsonStr", jsonStr);
-                //MainActivity.putExtra("jsonStrKmeans", jsonStrKmeans);
-                startActivity(MainActivity);
-                // close splash activity
-                finish();
+               startHomeActivity();
             } else if (jsonStr == null){
                 Log.e("null string", "null json string re-extraction");
                 new extractLatLng().execute();

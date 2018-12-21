@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity
     private FileManager fileManager;
     private String jsonStr;
     private String jsonStrKmeans;
-    private final int CLUSTER_NUM = 20;
+    private int CLUSTER_NUM;
     private String[] colorArr = {"#FF8C00", "#FFFF00", "#1CE6FF", "#FF34FF", "#FF4A46", "#008941", "#006FA6", "#A30059",
             "#FFDBE5", "#7A4900", "#0000A6", "#63FFAC", "#B79762", "#004D43", "#8FB0FF", "#997D87",
             "#5A0007", "#809693", "#FEFFE6", "#1B4400", "#4FC601", "#3B5DFF", "#4A3B53", "#FF2F80",
@@ -85,16 +85,16 @@ public class MainActivity extends AppCompatActivity
 
 
     private MapLayerSource mapLayerSource;
-    private static final String SOURCE_ID = "shrine.data";
-    private static final String LAYER_ID = "shrine.layer";
-    private static final String CLUSTER_SOURCE_ID = "shrine.cluster";
-    private static final String CLUSTER_LAYER_ID = "shrine.cluster.layer";
-    private static final String K_SOURCE_ID = "kmeans.data";
-    private static final String K_LAYER_ID = "kmeans.layer";
+    private String SOURCE_ID;
+    private String LAYER_ID;
+    private String CLUSTER_SOURCE_ID;
+    private String CLUSTER_LAYER_ID;
+    private String K_SOURCE_ID;
+    private String K_LAYER_ID;
     private MapboxMap.OnMapClickListener clusterListener;
 
-    public final int REQUEST_CODE_ASKLOCATION = 500;
-    public final int REQUEST_CODE_WRITESTORAGE = 501;
+    public int REQUEST_CODE_ASKLOCATION;
+    public int REQUEST_CODE_WRITESTORAGE;
     private ProgressDialog pDialog;
 
 
@@ -106,6 +106,7 @@ public class MainActivity extends AppCompatActivity
         Mapbox.getInstance(this, "pk.eyJ1IjoiaGlkZGVuc2hyaW5lbnR1IiwiYSI6ImNqaW15cHNveTA5ZW0za28ybDhhenUwOXAifQ.vDG7MECkwj4PnwW_iqZCNQ");
         setContentView(R.layout.activity_main);
 
+        getStringResource();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -144,7 +145,18 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    public void getStringResource(){
+        SOURCE_ID = getString(R.string.SOURCE_ID);
+        LAYER_ID = getString(R.string.LAYER_ID);
+        CLUSTER_SOURCE_ID = getString(R.string.CLUSTER_SOURCE_ID);
+        CLUSTER_LAYER_ID = getString(R.string.CLUSTER_LAYER_ID);
+        K_SOURCE_ID = getString(R.string.K_SOURCE_ID);
+        K_LAYER_ID = getString(R.string.K_LAYER_ID);
+        REQUEST_CODE_ASKLOCATION = Integer.parseInt(getString(R.string.REQUEST_CODE_ASKLOCATION));
+        REQUEST_CODE_WRITESTORAGE = Integer.parseInt(getString(R.string.REQUEST_CODE_WRITESTORAGE));
+        CLUSTER_NUM = Integer.parseInt(getString(R.string.CLUSTER_NUM));
 
+    }
 
 
 
@@ -197,14 +209,6 @@ public class MainActivity extends AppCompatActivity
         gpsTracker = new GPSTracker(MainActivity.this);
         mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(gpsTracker.getLatitude(),gpsTracker.getLongitude()), 13.0));
 
-        //set mapsource
-        /*
-        Bundle extras = getIntent().getExtras();
-        if (extras != null) {
-            jsonStr = extras.getString("jsonStr");
-            jsonStrKmeans = extras.getString("jsonStrKmeans");
-        }*/
-
 
         fileManager = new FileManager();
         jsonStr = (String) fileManager.readObjectFile("mapjson", context);
@@ -213,6 +217,7 @@ public class MainActivity extends AppCompatActivity
         jsonStrKmeans = (String) fileManager.readObjectFile("kmeansjson", context);
         //new extractKmeansLatLng().execute();
 
+        //set mapsource
         mapLayerSource.addMapSource(mapboxMap, jsonStr, SOURCE_ID);
 
         //set maplayer
@@ -295,7 +300,7 @@ public class MainActivity extends AppCompatActivity
                 //cluster by region or proximity
                 if (region_bool) {
                     KMeansCluster kMeansCluster = new KMeansCluster();
-                    kMeansCluster.initKMeans(context, mapboxMap, colorArr, jsonStrKmeans);
+                    kMeansCluster.initKMeans(MainActivity.this, mapboxMap, colorArr, jsonStrKmeans);
                     item.setChecked(true);
                 } else {
                     calCluster();
@@ -503,15 +508,11 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         mapView.onResume();
 
-
-
         // ARCore requires camera permission to operate.
         if (!CameraPermissionHelper.hasCameraPermission(this)) {
             CameraPermissionHelper.requestCameraPermission(this);
             return;
         }
-
-
 
     }
 

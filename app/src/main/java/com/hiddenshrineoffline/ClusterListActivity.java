@@ -11,7 +11,7 @@ public class ClusterListActivity extends AppCompatActivity {
 
     private String[] colorArr;
     private ArrayList<ClusterEntity> clusterArrayList;
-    private final int clusterNo = 20;
+    private int clusterNo;
     private ClusterListViewAdapter clusterListViewAdapter;
     private ListView clusterListView;
 
@@ -19,6 +19,8 @@ public class ClusterListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cluster_list);
+
+        clusterNo = Integer.parseInt(getString(R.string.CLUSTER_NUM));
 
         // Get a support ActionBar corresponding to this toolbar
         ActionBar ab = getSupportActionBar();

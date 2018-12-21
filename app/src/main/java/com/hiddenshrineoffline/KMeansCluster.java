@@ -3,6 +3,7 @@ package com.hiddenshrineoffline;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.RectF;
@@ -34,39 +35,42 @@ public class KMeansCluster {
     private MapboxMap mapboxMap;
     private MapboxMap.OnMapClickListener clusterListener;
     private String jsonStr;
-
-    private static final String SOURCE_ID = "shrine.data";
-    private static final String LAYER_ID = "shrine.layer";
-    private static final String CLUSTER_SOURCE_ID = "shrine.cluster";
-    private static final String CLUSTER_LAYER_ID = "shrine.cluster.layer";
-    private static final String K_SOURCE_ID = "kmeans.data";
-    private static final String K_LAYER_ID = "kmeans.layer";
+    private String SOURCE_ID;
+    private String LAYER_ID;
+    private String K_SOURCE_ID;
+    private String K_LAYER_ID;
     private CircleLayer circleLayer;
     private Expression.Stop[] stops;
-    private final int CLUSTER_NUM = 14;
+    private int KMEANS_CLUSTER_NUM;
 
     public void initKMeans(Context context, MapboxMap mapboxMap, String[] colorArr, String jsonStr){
         this.jsonStr = jsonStr;
         this.context = context;
         this.mapboxMap = mapboxMap;
 
-        stops = new Expression.Stop[CLUSTER_NUM];
-        for (int i=0; i<CLUSTER_NUM; i++){
+        getStringResource();
+
+        stops = new Expression.Stop[KMEANS_CLUSTER_NUM];
+        for (int i=0; i<KMEANS_CLUSTER_NUM; i++){
             stops[i] = stop(String.valueOf(i),color(Color.parseColor(colorArr[i])));
         }
 
         mapLayerSource = new MapLayerSource();
-        mapLayerSource.removeMapLayer(mapboxMap, LAYER_ID);
-        mapLayerSource.removeMapLayer(mapboxMap, K_LAYER_ID);
-        mapLayerSource.removeMapLayer(mapboxMap, CLUSTER_LAYER_ID);
-
-
-        mapLayerSource.addMapSource(mapboxMap, jsonStr, K_SOURCE_ID);
-        mapLayerSource.addMapLayer(mapboxMap, K_LAYER_ID, K_SOURCE_ID, stops);
+        calCluster();
+        //mapLayerSource.addMapSource(mapboxMap, jsonStr, K_SOURCE_ID);
+        //mapLayerSource.addMapLayer(mapboxMap, K_LAYER_ID, K_SOURCE_ID, stops);
 
 
     }
 
+    public void getStringResource(){
+        Resources res = context.getResources();
+        SOURCE_ID = res.getString(R.string.SOURCE_ID);
+        LAYER_ID = res.getString(R.string.LAYER_ID);
+        K_SOURCE_ID = res.getString(R.string.K_SOURCE_ID);
+        K_LAYER_ID = res.getString(R.string.K_LAYER_ID);
+        KMEANS_CLUSTER_NUM = Integer.parseInt(res.getString(R.string.KMEANS_CLUSTER_NUM));
+    }
 
 
     //Calculate the convex hull
@@ -139,8 +143,8 @@ public class KMeansCluster {
 
     public void drawCluster(JSONObject featureCollection){
         String featureCollection_str = featureCollection.toString();
-        mapLayerSource.addMapSource(mapboxMap, featureCollection_str, CLUSTER_SOURCE_ID);
-        mapLayerSource.addBorderLayer(mapboxMap, CLUSTER_LAYER_ID, CLUSTER_SOURCE_ID, stops);
+        mapLayerSource.addMapSource(mapboxMap, featureCollection_str, K_SOURCE_ID);
+        mapLayerSource.addBorderLayer(mapboxMap, K_LAYER_ID, K_SOURCE_ID, stops);
         setClusterClickListener();
     }
 
@@ -175,7 +179,7 @@ public class KMeansCluster {
             public void onMapClick(@NonNull LatLng point) {
                 PointF pointf = mapboxMap.getProjection().toScreenLocation(point);
                 RectF rectF = new RectF(pointf.x - 10, pointf.y - 10, pointf.x + 10, pointf.y + 10);
-                List<Feature> featureList = mapboxMap.queryRenderedFeatures(rectF, CLUSTER_LAYER_ID);
+                List<Feature> featureList = mapboxMap.queryRenderedFeatures(rectF, K_LAYER_ID);
                 if (featureList.size() > 0) {
                     for (Feature feature : featureList) {
                         Log.d("Feature found with %1$s", feature.toJson());
