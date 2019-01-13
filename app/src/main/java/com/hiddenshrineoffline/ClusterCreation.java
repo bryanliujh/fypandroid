@@ -72,6 +72,7 @@ public class ClusterCreation {
         for (Map.Entry<Integer, ArrayList<String>> entry : hashMap.entrySet()){
 
             List<LatLng> points = new ArrayList<>();
+            //each entry corresponds to a cluster of points
             for (String e : entry.getValue()){
                 String[] coord = e.split(",");
                 double lon = Double.parseDouble(coord[0]);

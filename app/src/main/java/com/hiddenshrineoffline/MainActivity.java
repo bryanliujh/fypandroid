@@ -351,6 +351,9 @@ public class MainActivity extends AppCompatActivity
                 Intent settings = new Intent(MainActivity.this, settings.class);
                 startActivity(settings);
                 break;
+            case R.id.nav_nearest_shrine:
+                NearestShrine nearestShrine = new NearestShrine(context);
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

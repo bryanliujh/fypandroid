@@ -24,14 +24,27 @@ tools:context=".ShrineDetailActivity">
     android:layout_alignParentTop="true">
 
 
+    <ToggleButton
+        android:id="@+id/favouriteButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:layout_gravity="right"
+        android:layout_weight="1"
+        android:background="@drawable/toggle_button_favourite_bg"
+        android:textOff=""
+        android:textOn="" />
+
     //image of restaurant
     <ImageView
         android:id="@+id/shrine_img"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:src="@drawable/shrine_img"
-        android:scaleType="centerCrop"
-/>
+        android:scaleType="centerCrop" />
+
+
 
     //holder for the caption and rating
     <LinearLayout
