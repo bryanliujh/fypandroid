@@ -1,4 +1,5 @@
 <resources>
+    <string name="access_token">pk.eyJ1IjoiaGlkZGVuc2hyaW5lbnR1IiwiYSI6ImNqaW15cHNveTA5ZW0za28ybDhhenUwOXAifQ.vDG7MECkwj4PnwW_iqZCNQ</string>
     <string name="app_name">Hidden Shrine Offline</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -8,13 +9,16 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_shrine_ar">shrine_ar</string>
     <string name="title_activity_settings">settings</string>
-
+    <string name="title_activity_favourites">Favourites</string>
+    <string name="title_activity_nearest_shrine">Nearest Shrine</string>
 
 
     <string name="SOURCE_ID">shrine.data</string>
     <string name="LAYER_ID">shrine.layer</string>
     <string name="CLUSTER_SOURCE_ID">shrine.cluster</string>
     <string name="CLUSTER_LAYER_ID">shrine.cluster.layer</string>
+    <string name="REGION_SOURCE_ID">region.data</string>
+    <string name="REGION_LAYER_ID">region.layer</string>
     <string name="K_SOURCE_ID">kmeans.data</string>
     <string name="K_LAYER_ID">kmeans.layer</string>
     <string name="REQUEST_CODE_ASKLOCATION">500</string>

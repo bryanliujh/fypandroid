@@ -81,6 +81,9 @@ public class MainActivity extends AppCompatActivity
     private String CLUSTER_LAYER_ID;
     private String K_SOURCE_ID;
     private String K_LAYER_ID;
+    private String REGION_SOURCE_ID;
+    private String REGION_LAYER_ID;
+
     private MapboxMap.OnMapClickListener clusterListener;
 
     public int REQUEST_CODE_ASKLOCATION;
@@ -93,7 +96,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         context = getApplicationContext();
-        Mapbox.getInstance(this, "pk.eyJ1IjoiaGlkZGVuc2hyaW5lbnR1IiwiYSI6ImNqaW15cHNveTA5ZW0za28ybDhhenUwOXAifQ.vDG7MECkwj4PnwW_iqZCNQ");
+        Mapbox.getInstance(this, getString(R.string.access_token));
         setContentView(R.layout.activity_main);
 
         getStringResource();
@@ -140,6 +143,8 @@ public class MainActivity extends AppCompatActivity
         LAYER_ID = getString(R.string.LAYER_ID);
         CLUSTER_SOURCE_ID = getString(R.string.CLUSTER_SOURCE_ID);
         CLUSTER_LAYER_ID = getString(R.string.CLUSTER_LAYER_ID);
+        REGION_SOURCE_ID = getString(R.string.REGION_SOURCE_ID);
+        REGION_LAYER_ID = getString(R.string.REGION_LAYER_ID);
         K_SOURCE_ID = getString(R.string.K_SOURCE_ID);
         K_LAYER_ID = getString(R.string.K_LAYER_ID);
         REQUEST_CODE_ASKLOCATION = Integer.parseInt(getString(R.string.REQUEST_CODE_ASKLOCATION));
@@ -272,9 +277,17 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.download_cluster) {
+            removeAllMapLayer();
+            mapboxMap.removeOnMapClickListener(clusterListener);
+
+            /* old cluster list download
             Intent cluster = new Intent(MainActivity.this, ClusterListActivity.class);
             cluster.putExtra("colorArr",colorArr);
-            startActivity(cluster);
+            startActivity(cluster);*/
+
+            ManualClusterDownload manualClusterDownload = new ManualClusterDownload();
+            clusterListener = manualClusterDownload.initClusterCreation(MainActivity.this, mapboxMap, stops, "mapjson", REGION_SOURCE_ID, REGION_LAYER_ID);
+
             return true;
         }
 
@@ -351,9 +364,15 @@ public class MainActivity extends AppCompatActivity
                 Intent settings = new Intent(MainActivity.this, settings.class);
                 startActivity(settings);
                 break;
-            case R.id.nav_nearest_shrine:
-                NearestShrine nearestShrine = new NearestShrine(context);
+            case R.id.nav_favourite:
+                Intent favourites = new Intent(MainActivity.this, FavouriteActivity.class);
+                startActivity(favourites);
                 break;
+            case R.id.nav_nearest_shrine:
+                Intent nearest_shrine = new Intent(MainActivity.this, NearestShrineActivity.class);
+                startActivity(nearest_shrine);
+                break;
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

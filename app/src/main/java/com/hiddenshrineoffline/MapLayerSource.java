@@ -51,7 +51,8 @@ public class MapLayerSource {
             // Create and style a FillLayer that uses the Polygon Feature's coordinates in the GeoJSON data
             FillLayer borderOutlineLayer = new FillLayer(CLUSTER_LAYER_ID, CLUSTER_SOURCE_ID);
             borderOutlineLayer.setProperties(
-                    PropertyFactory.fillColor(match(get("circleID"), color(Color.parseColor("#000000")), stops))
+                    PropertyFactory.fillColor(match(get("circleID"), color(Color.parseColor("#000000")), stops)),
+                    PropertyFactory.fillOpacity(.6f)
             );
 
             mapboxMap.addLayer(borderOutlineLayer);

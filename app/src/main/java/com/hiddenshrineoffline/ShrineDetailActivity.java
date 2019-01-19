@@ -5,15 +5,21 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 
+import java.util.ArrayList;
+
 public class ShrineDetailActivity extends AppCompatActivity {
 
+    private ToggleButton favouriteBtn;
     private TextView name_val;
     private TextView status_val;
     private TextView size_val;
@@ -34,7 +40,10 @@ public class ShrineDetailActivity extends AppCompatActivity {
     private String religion;
     private String offerings;
     private String imageURL;
+    private String shrineUID;
     private AppDatabase mDB;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +74,7 @@ public class ShrineDetailActivity extends AppCompatActivity {
 
             ShrineEntity shrineEntity = mDB.shrineDao().findByShrineUid(extras.getString("shrineUUID"));
 
+            //if cluster that contains this shrine is downloaded
             if (shrineEntity != null) {
 
                 name = shrineEntity.getShrine_name();
@@ -75,6 +85,7 @@ public class ShrineDetailActivity extends AppCompatActivity {
                 religion = shrineEntity.getShrine_religion();
                 offerings = shrineEntity.getShrine_offerings();
                 imageURL = shrineEntity.getShrine_imageURL();
+                shrineUID = shrineEntity.getShrine_uid();
 
             }
             else{
@@ -86,12 +97,20 @@ public class ShrineDetailActivity extends AppCompatActivity {
                 religion = extras.getString("religion");
                 offerings = extras.getString("offerings");
                 imageURL = extras.getString("imageURL");
+                shrineUID = extras.getString("shrineUUID");
             }
 
 
             updateUI();
 
         }
+
+
+
+        //favouriteBtn = (ToggleButton) (findViewById(R.id.favouriteButton));
+
+        //initFavourites();
+       //attachedOnClickListener();
 
 
 
@@ -122,6 +141,61 @@ public class ShrineDetailActivity extends AppCompatActivity {
                     .into((ImageView) findViewById(R.id.shrine_img));
         }
     }
+
+    public ArrayList<String> retrieveFavourites(){
+        ArrayList<String> favouriteList = null;
+
+        try {
+            FileManager fileManager = new FileManager();
+            favouriteList = (ArrayList<String>) fileManager.readObjectFile("Favourite_File", context);
+        }
+        catch(Exception e){
+            Toast.makeText(getApplicationContext(), "Cannot read favourite file", Toast.LENGTH_SHORT).show();
+        }
+
+        return favouriteList;
+    }
+
+    public void initFavourites(){
+        ArrayList<String> favouriteList = retrieveFavourites();
+        favouriteBtn.setChecked(false);
+
+        if (favouriteList != null){
+            for (String favourite:favouriteList){
+                if (favourite == shrineUID){
+                    favouriteBtn.setChecked(true);
+                }
+            }
+        }else{
+            favouriteBtn.setChecked(false);
+        }
+
+    }
+
+
+    public void attachedOnClickListener(){
+        ArrayList<String> favouriteList = retrieveFavourites();
+
+        FileManager fileManager = new FileManager();
+
+        favouriteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (favouriteBtn.isChecked()){
+                    favouriteList.add(shrineUID);
+                    Toast.makeText(getApplicationContext(), "Shrine Favourited", Toast.LENGTH_SHORT).show();
+                }else{
+                    favouriteList.remove(shrineUID);
+                    Toast.makeText(getApplicationContext(), "Shrine Unfavourited", Toast.LENGTH_SHORT).show();
+                }
+
+                fileManager.saveObjectFile("Favourite_File",context, favouriteList);
+            }
+        });
+    }
+
+
+
 
 
 

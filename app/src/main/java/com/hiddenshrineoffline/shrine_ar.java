@@ -382,6 +382,14 @@ public class shrine_ar extends AppCompatActivity
                 Intent settings = new Intent(shrine_ar.this, settings.class);
                 startActivity(settings);
                 break;
+            case R.id.nav_favourite:
+                Intent favourites = new Intent(shrine_ar.this, FavouriteActivity.class);
+                startActivity(favourites);
+                break;
+            case R.id.nav_nearest_shrine:
+                Intent nearest_shrine = new Intent(shrine_ar.this, NearestShrineActivity.class);
+                startActivity(nearest_shrine);
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

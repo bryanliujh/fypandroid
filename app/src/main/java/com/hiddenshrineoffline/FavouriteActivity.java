@@ -1,8 +1,6 @@
 package com.hiddenshrineoffline;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -11,18 +9,14 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.widget.CompoundButton;
-import android.widget.ToggleButton;
 
-public class settings extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
-
-    private Context context;
+public class FavouriteActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_favourite);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -35,35 +29,6 @@ public class settings extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
-        context = getApplicationContext();
-
-        SharedPreferences sharedPreferences = context.getSharedPreferences("cluster_settings", context.MODE_PRIVATE);
-
-        ToggleButton regionToggle = (ToggleButton) findViewById(R.id.region_toggle_button);
-        regionToggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                if (b){
-                    editor.putBoolean("region_bool", true);
-                }
-                else{
-                    editor.putBoolean("region_bool", false);
-                }
-                editor.commit();
-            }
-        });
-
-        //get boolean of region_bool else default is false
-        boolean region_bool = sharedPreferences.getBoolean("region_bool", false);
-        if (region_bool){
-            regionToggle.setChecked(true);
-        }
-        else{
-            regionToggle.setChecked(false);
-        }
-
 
     }
 
@@ -88,23 +53,23 @@ public class settings extends AppCompatActivity
 
         switch (id){
             case R.id.nav_shrine_map:
-                Intent main = new Intent(settings.this, MainActivity.class);
+                Intent main = new Intent(FavouriteActivity.this, MainActivity.class);
                 startActivity(main);
                 break;
             case R.id.nav_shrine_ar:
-                Intent ar = new Intent(settings.this, shrine_ar.class);
+                Intent ar = new Intent(FavouriteActivity.this, shrine_ar.class);
                 startActivity(ar);
                 break;
             case R.id.nav_settings:
-                Intent settings = new Intent(settings.this, settings.class);
+                Intent settings = new Intent(FavouriteActivity.this, settings.class);
                 startActivity(settings);
                 break;
             case R.id.nav_favourite:
-                Intent favourites = new Intent(settings.this, FavouriteActivity.class);
+                Intent favourites = new Intent(FavouriteActivity.this, FavouriteActivity.class);
                 startActivity(favourites);
                 break;
             case R.id.nav_nearest_shrine:
-                Intent nearest_shrine = new Intent(settings.this, NearestShrineActivity.class);
+                Intent nearest_shrine = new Intent(FavouriteActivity.this, NearestShrineActivity.class);
                 startActivity(nearest_shrine);
                 break;
         }
@@ -113,4 +78,7 @@ public class settings extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 }
+

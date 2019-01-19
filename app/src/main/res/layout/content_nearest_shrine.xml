@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            //holder for shrine image
+            //note: edit layout height in frame layout to include appbar
+
+            <FrameLayout
+                android:id="@+id/shrine_frame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true">
+
+
+                <com.mapbox.mapboxsdk.maps.MapView
+                    android:id="@+id/mapView"
+                    android:layout_width="match_parent"
+                    android:layout_height="400dp"
+                    mapbox:mapbox_cameraTargetLat="40.73581"
+                    mapbox:mapbox_cameraTargetLng="-73.99155"
+                    mapbox:mapbox_styleUrl="mapbox://styles/mapbox/streets-v10"
+                    mapbox:mapbox_cameraZoom="11" />
+
+
+
+
+            </FrameLayout>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="15dp"
+                >
+                //holder for all the details
+                <LinearLayout
+                android:id="@+id/linearDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+
+
+                //Top row (name)
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/name_lbl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="#0000"
+                        android:gravity="left"
+                        android:padding="16dp"
+                        android:text="Name"
+                        android:textColor="@color/shrine_details"
+                        android:textSize="16dp" />
+
+                    <TextView
+                        android:id="@+id/name_val"
+                        android:layout_width="235dp"
+                        android:layout_height="wrap_content"
+                        android:background="#0000"
+                        android:gravity="left"
+                        android:padding="16dp"
+                        android:text="exist"
+                        android:textColor="@color/shrine_details"
+                        android:textSize="16dp" />
+                </LinearLayout>
+
+                //divider
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp" />
+
+
+                //1st row
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/status_lbl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="#0000"
+                        android:gravity="left"
+                        android:padding="16dp"
+                        android:text="Status"
+                        android:textColor="@color/shrine_details"
+                        android:textSize="16dp" />
+
+                    <TextView
+                        android:id="@+id/status_val"
+                        android:layout_width="235dp"
+                        android:layout_height="wrap_content"
+                        android:background="#0000"
+                        android:gravity="left"
+                        android:padding="16dp"
+                        android:text="exist"
+                        android:textColor="@color/shrine_details"
+                        android:textSize="16dp" />
+                </LinearLayout>
+
+                //divider
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp" />
+
+
+
+
+                //2nd row
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_weight="1"
+                        android:id="@+id/size_lbl"
+                        android:textSize="16dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Size"
+                        android:textColor="@color/shrine_details"
+                        android:background="#0000"
+                        android:padding="16dp"
+                        android:gravity="left"/>
+
+                    <TextView
+                        android:id="@+id/size_val"
+                        android:layout_width="235dp"
+                        android:layout_height="wrap_content"
+                        android:background="#0000"
+                        android:gravity="left"
+                        android:padding="16dp"
+                        android:text="small"
+                        android:textColor="@color/shrine_details"
+                        android:textSize="16dp" />
+                </LinearLayout>
+
+
+
+                //divider
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"/>
+
+                //3rd row
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+
+                    <TextView
+                        android:layout_weight="1"
+                        android:id="@+id/materials_lbl"
+                        android:textSize="16dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Materials"
+                        android:textColor="@color/shrine_details"
+                        android:background="#0000"
+                        android:padding="16dp"
+                        android:gravity="left" />
+
+                    <TextView
+                        android:id="@+id/materials_val"
+                        android:layout_width="235dp"
+                        android:layout_height="wrap_content"
+                        android:background="#0000"
+                        android:gravity="left"
+                        android:padding="16dp"
+                        android:text="wood"
+                        android:textColor="@color/shrine_details"
+                        android:textColorHint="#1b193b"
+                        android:textSize="16dp" />
+                </LinearLayout>
+
+                //divider
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"/>
+
+
+                //4th row
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+
+                    <TextView
+                        android:layout_weight="1"
+                        android:id="@+id/deity_lbl"
+                        android:textSize="16dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Deity"
+                        android:textColor="@color/shrine_details"
+                        android:background="#0000"
+                        android:padding="16dp"
+                        android:gravity="left" />
+
+                    <TextView
+                        android:id="@+id/deity_val"
+                        android:layout_width="235dp"
+                        android:layout_height="wrap_content"
+                        android:background="#0000"
+                        android:gravity="left"
+                        android:padding="16dp"
+                        android:text="Jesus"
+                        android:textColor="@color/shrine_details"
+                        android:textColorHint="#1b193b"
+                        android:textSize="16dp" />
+                </LinearLayout>
+
+                //divider
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"/>
+
+
+                //5th row
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+
+                    <TextView
+                        android:layout_weight="1"
+                        android:id="@+id/religion_lbl"
+                        android:textSize="16dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Religion"
+                        android:textColor="@color/shrine_details"
+                        android:background="#0000"
+                        android:padding="16dp"
+                        android:gravity="left" />
+
+                    <TextView
+                        android:id="@+id/religion_val"
+                        android:layout_width="235dp"
+                        android:layout_height="wrap_content"
+                        android:background="#0000"
+                        android:gravity="left"
+                        android:padding="16dp"
+                        android:text="Christianity"
+                        android:textColor="@color/shrine_details"
+                        android:textColorHint="#1b193b"
+                        android:textSize="16dp" />
+                </LinearLayout>
+
+                //divider
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/divider"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginRight="16dp"/>
+
+
+                //6th row
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+
+                    <TextView
+                        android:layout_weight="1"
+                        android:id="@+id/offerings_lbl"
+                        android:textSize="16dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Offerings"
+                        android:textColor="@color/shrine_details"
+                        android:background="#0000"
+                        android:padding="16dp"
+                        android:gravity="left" />
+
+                    <TextView
+                        android:id="@+id/offerings_val"
+                        android:layout_width="235dp"
+                        android:layout_height="wrap_content"
+                        android:background="#0000"
+                        android:gravity="left"
+                        android:padding="16dp"
+                        android:text="food"
+                        android:textColor="@color/shrine_details"
+                        android:textColorHint="#1b193b"
+                        android:textSize="16dp" />
+                </LinearLayout>
+
+
+            </LinearLayout>
+            </ScrollView>
+
+        </LinearLayout>
+
+
+</RelativeLayout>

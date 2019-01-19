@@ -128,6 +128,7 @@ public class ClusterCreation {
 
     public JSONArray buildGeojson(JSONArray features, JSONArray coord_arr_list, Integer color_index){
 
+        //color index refers to cluster index as well
         try {
 
             JSONObject feature = new JSONObject();
