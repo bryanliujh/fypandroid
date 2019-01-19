@@ -15,8 +15,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 
-import java.util.ArrayList;
-
 public class ShrineDetailActivity extends AppCompatActivity {
 
     private ToggleButton favouriteBtn;
@@ -42,6 +40,8 @@ public class ShrineDetailActivity extends AppCompatActivity {
     private String imageURL;
     private String shrineUID;
     private AppDatabase mDB;
+
+    private FavouriteEntity favouriteEntity;
 
 
 
@@ -103,14 +103,16 @@ public class ShrineDetailActivity extends AppCompatActivity {
 
             updateUI();
 
+
+
         }
 
 
 
-        //favouriteBtn = (ToggleButton) (findViewById(R.id.favouriteButton));
+        favouriteBtn = (ToggleButton) (findViewById(R.id.favouriteButton));
 
-        //initFavourites();
-       //attachedOnClickListener();
+        initFavourites();
+        attachedOnClickListener();
 
 
 
@@ -142,31 +144,28 @@ public class ShrineDetailActivity extends AppCompatActivity {
         }
     }
 
-    public ArrayList<String> retrieveFavourites(){
-        ArrayList<String> favouriteList = null;
 
-        try {
-            FileManager fileManager = new FileManager();
-            favouriteList = (ArrayList<String>) fileManager.readObjectFile("Favourite_File", context);
-        }
-        catch(Exception e){
-            Toast.makeText(getApplicationContext(), "Cannot read favourite file", Toast.LENGTH_SHORT).show();
-        }
-
-        return favouriteList;
-    }
 
     public void initFavourites(){
-        ArrayList<String> favouriteList = retrieveFavourites();
+        favouriteEntity = new FavouriteEntity();
+        favouriteEntity = mDB.favouriteDao().findByShrineUid(shrineUID);
         favouriteBtn.setChecked(false);
 
-        if (favouriteList != null){
-            for (String favourite:favouriteList){
-                if (favourite == shrineUID){
-                    favouriteBtn.setChecked(true);
-                }
-            }
+        if (favouriteEntity != null){
+            favouriteBtn.setChecked(true);
         }else{
+            //retrieve favourite details from page
+            favouriteEntity = new FavouriteEntity();
+            favouriteEntity.setShrine_name(name);
+            favouriteEntity.setShrine_status(status);
+            favouriteEntity.setShrine_size(size);
+            favouriteEntity.setShrine_materials(materials);
+            favouriteEntity.setShrine_deity(deity);
+            favouriteEntity.setShrine_religion(religion);
+            favouriteEntity.setShrine_offerings(offerings);
+            favouriteEntity.setShrine_imageURL(imageURL);
+            favouriteEntity.setShrine_uid(shrineUID);
+
             favouriteBtn.setChecked(false);
         }
 
@@ -174,25 +173,33 @@ public class ShrineDetailActivity extends AppCompatActivity {
 
 
     public void attachedOnClickListener(){
-        ArrayList<String> favouriteList = retrieveFavourites();
-
-        FileManager fileManager = new FileManager();
 
         favouriteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (favouriteBtn.isChecked()){
-                    favouriteList.add(shrineUID);
+                    mDB.favouriteDao().insertAll(favouriteEntity);
                     Toast.makeText(getApplicationContext(), "Shrine Favourited", Toast.LENGTH_SHORT).show();
                 }else{
-                    favouriteList.remove(shrineUID);
+                    mDB.favouriteDao().delete(favouriteEntity);
                     Toast.makeText(getApplicationContext(), "Shrine Unfavourited", Toast.LENGTH_SHORT).show();
                 }
 
-                fileManager.saveObjectFile("Favourite_File",context, favouriteList);
             }
         });
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

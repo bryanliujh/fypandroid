@@ -1,20 +1,36 @@
 package com.hiddenshrineoffline;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.os.Handler;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FavouriteActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private Context context;
+    private AppDatabase mDB;
+    private FavouriteListViewAdapter favouriteListViewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context = getApplicationContext();
+        mDB = AppDatabase.getDatabase(context);
         setContentView(R.layout.activity_favourite);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -29,6 +45,27 @@ public class FavouriteActivity extends AppCompatActivity implements NavigationVi
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+
+
+        //swipe function
+        swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefresh);
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //populate list view on swipe
+                populateListView();
+            }
+        });
+
+
+        //populate list view initial
+        populateListView();
+
+
+
 
     }
 
@@ -77,6 +114,58 @@ public class FavouriteActivity extends AppCompatActivity implements NavigationVi
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+
+    public void populateListView(){
+        List<FavouriteEntity> favouriteEntityArrayList = new ArrayList<>();
+        ListView favouriteListView = (ListView) findViewById(R.id.favouriteList);
+
+        try {
+            favouriteEntityArrayList = mDB.favouriteDao().getAll();
+            favouriteListViewAdapter = new FavouriteListViewAdapter(context, favouriteEntityArrayList);
+            favouriteListView.setAdapter(favouriteListViewAdapter);
+            favouriteListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                    FavouriteEntity favouriteEntity = new FavouriteEntity();
+                    favouriteEntity = (FavouriteEntity) adapterView.getAdapter().getItem(position);
+
+                    Intent shrine_detail = new Intent(FavouriteActivity.this, ShrineDetailActivity.class);
+                    shrine_detail.putExtra("name",favouriteEntity.getShrine_name());
+                    shrine_detail.putExtra("status",favouriteEntity.getShrine_status());
+                    shrine_detail.putExtra("size",favouriteEntity.getShrine_size());
+                    shrine_detail.putExtra("materials",favouriteEntity.getShrine_materials());
+                    shrine_detail.putExtra("deity",favouriteEntity.getShrine_deity());
+                    shrine_detail.putExtra("religion", favouriteEntity.getShrine_religion());
+                    shrine_detail.putExtra("offerings",favouriteEntity.getShrine_offerings());
+                    shrine_detail.putExtra("imageURL", favouriteEntity.getShrine_imageURL());
+                    shrine_detail.putExtra("shrineUUID", favouriteEntity.getShrine_uid());
+
+                    startActivity(shrine_detail);
+                }
+            });
+
+
+
+        }catch (Exception e){
+
+        }
+
+
+        if (swipeRefreshLayout.isRefreshing()) {
+            Handler mHandler = new Handler();
+
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    swipeRefreshLayout.setRefreshing(false);
+                }
+            }, 700);
+
+        }
+
+
     }
 
 

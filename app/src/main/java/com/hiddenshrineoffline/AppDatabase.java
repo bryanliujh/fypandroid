@@ -5,9 +5,10 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
-@Database(entities = {ShrineEntity.class}, version = 1, exportSchema = false)
+@Database(entities = {ShrineEntity.class, FavouriteEntity.class}, version = 1, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract ShrineDao shrineDao();
+    public abstract FavouriteDao favouriteDao();
 
     private static volatile AppDatabase INSTANCE;
 
