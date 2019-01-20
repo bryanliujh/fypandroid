@@ -7,7 +7,6 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -17,7 +16,6 @@ import com.mapbox.mapboxsdk.style.expressions.Expression;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ManualClusterDownload {
@@ -30,6 +28,7 @@ public class ManualClusterDownload {
     private String jsonFileName;
     private Expression.Stop[] stops;
     private MapboxMap.OnMapClickListener clusterListener;
+
 
     private String[] northSG = {"1.42896, 103.73795", "1.40618, 103.72653", "1.37563, 103.73477", "1.34612, 103.74163", "1.31419, 103.74678", "1.33698, 103.77533", "1.35826, 103.80417", "1.37851, 103.82648",
             "1.41283, 103.84571", "1.43548, 103.86391", "1.46191, 103.83884", "1.46912, 103.80657", "1.45745, 103.78528", "1.43926, 103.76331"};
@@ -91,6 +90,9 @@ public class ManualClusterDownload {
         "1.42725, 103.92922",
         "1.42527, 103.88768"};
 
+    private String[][] regionArray = {northSG, southSG, westSG, eastSG};
+
+
 
     public MapboxMap.OnMapClickListener initClusterCreation(Context context, MapboxMap mapboxMap, Expression.Stop[] stops, String jsonFileName, String CHANGE_SOURCE_ID, String CHANGE_LAYER_ID){
         this.context = context;
@@ -130,10 +132,17 @@ public class ManualClusterDownload {
             Log.e("read_error","Error Reading Latitude and Longitude");
         }
 
-        features = createFeatures(features, northSG, 1);
-        features = createFeatures(features, southSG, 2);
+
+        /*
+        features = createFeatures(features, northSG, 0);
+        features = createFeatures(features, southSG, 1);
+        features = createFeatures(features, westSG, 2);
         features = createFeatures(features, eastSG, 3);
-        features = createFeatures(features, westSG, 4);
+        */
+
+        for (int i = 0; i<regionArray.length; i++){
+            features = createFeatures(features, regionArray[i], i);
+        }
 
         try {
             featureCollection.put("features", features);
@@ -214,48 +223,22 @@ public class ManualClusterDownload {
 
 
 
-    public void coordinateInRegion(String[] regionCoord, LatLng coord) {
-        int i, j;
-        boolean isInside = false;
-        ArrayList<LatLng> regionCoordList = new ArrayList<>();
-
-        for (String e: regionCoord){
-            String[] coordStr = e.split(",");
-            double lat = Double.parseDouble(coordStr[0]);
-            double lon = Double.parseDouble(coordStr[1]);
-            LatLng location = new LatLng(lat,lon);
-            regionCoordList.add(location);
-        }
-        int sides = regionCoordList.size();
-        for (i = 0, j = sides - 1; i < sides; j = i++) {
-            //verifying if your coordinate is inside your region
-
-            if (
-                    (
-                            (
-                                    (regionCoordList.get(i).getLongitude() <= coord.getLongitude()) && (coord.getLongitude() < regionCoordList.get(j).getLongitude())
-                            ) || (
-                                    (regionCoordList.get(j).getLongitude() <= coord.getLongitude()) && (coord.getLongitude() < regionCoordList.get(i).getLongitude())
-                            )
-                    ) &&
-                            (coord.getLatitude() < (regionCoordList.get(j).getLatitude() - regionCoordList.get(i).getLatitude()) * (coord.getLongitude() - regionCoordList.get(i).getLongitude()) / (regionCoordList.get(j).getLongitude() - regionCoordList.get(i).getLongitude()) + regionCoordList.get(i).getLatitude())
-            ) {
-                isInside = !isInside;
-            }
-        }
-
-
-        Toast.makeText(context, String.valueOf(isInside),Toast.LENGTH_SHORT).show();
-    }
 
 
 
 
 
     public void setClusterClickListener(){
+        String jsonStr;
+
+        FileManager fileManager = new FileManager();
+        jsonStr = (String) fileManager.readObjectFile("mapjson", context);
+
+
         clusterListener = new MapboxMap.OnMapClickListener() {
             @Override
             public void onMapClick(@NonNull LatLng point) {
+
                 PointF pointf = mapboxMap.getProjection().toScreenLocation(point);
                 RectF rectF = new RectF(pointf.x - 10, pointf.y - 10, pointf.x + 10, pointf.y + 10);
                 List<Feature> featureList = mapboxMap.queryRenderedFeatures(rectF, CHANGE_LAYER_ID);
@@ -269,7 +252,8 @@ public class ManualClusterDownload {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 DownloadCluster downloadCluster = new DownloadCluster();
-                                downloadCluster.downloadCluster(context, jsonFileName, feature.toJson());
+                                downloadCluster.downloadRegion(context, jsonStr, regionArray[Integer.parseInt(feature.getStringProperty("circleID"))]);
+
                             }
                         });
                         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
