@@ -224,6 +224,7 @@ public class MainActivity extends AppCompatActivity
         mapLayerSource.removeMapLayer(mapboxMap, LAYER_ID);
         mapLayerSource.removeMapLayer(mapboxMap, K_LAYER_ID);
         mapLayerSource.removeMapLayer(mapboxMap, CLUSTER_LAYER_ID);
+        mapLayerSource.removeMapLayer(mapboxMap, REGION_LAYER_ID);
     }
 
 
@@ -285,9 +286,14 @@ public class MainActivity extends AppCompatActivity
             cluster.putExtra("colorArr",colorArr);
             startActivity(cluster);*/
 
-            ManualClusterDownload manualClusterDownload = new ManualClusterDownload();
-            clusterListener = manualClusterDownload.initClusterCreation(MainActivity.this, mapboxMap, stops, "mapjson", REGION_SOURCE_ID, REGION_LAYER_ID);
-
+            if (item.isChecked()) {
+                mapLayerSource.addMapLayer(mapboxMap, LAYER_ID, SOURCE_ID, stops);
+                item.setChecked(false);
+            } else {
+                ManualClusterDownload manualClusterDownload = new ManualClusterDownload();
+                clusterListener = manualClusterDownload.initClusterCreation(MainActivity.this, mapboxMap, stops, "mapjson", REGION_SOURCE_ID, REGION_LAYER_ID);
+                item.setChecked(true);
+            }
             return true;
         }
 

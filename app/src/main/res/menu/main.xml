@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/download_cluster"
+        android:checkable="true"
         android:orderInCategory="100"
         android:title="Download Clusters"
         app:showAsAction="never" />
