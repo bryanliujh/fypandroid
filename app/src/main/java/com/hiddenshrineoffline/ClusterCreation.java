@@ -3,10 +3,14 @@ package com.hiddenshrineoffline;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 
 import com.mapbox.geojson.Feature;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -33,6 +37,7 @@ public class ClusterCreation {
     private String jsonFileName;
     private Expression.Stop[] stops;
     private MapboxMap.OnMapClickListener clusterListener;
+    private String[] colorArr;
 
 
     public MapboxMap.OnMapClickListener initClusterCreation(Context context, MapboxMap mapboxMap, Expression.Stop[] stops, String lat_lon_filename, String jsonFileName, String SOURCE_ID, String LAYER_ID, String CHANGE_SOURCE_ID, String CHANGE_LAYER_ID){
@@ -45,6 +50,7 @@ public class ClusterCreation {
         this.LAYER_ID = LAYER_ID;
         this.CHANGE_SOURCE_ID = CHANGE_SOURCE_ID;
         this.CHANGE_LAYER_ID = CHANGE_LAYER_ID;
+        this.colorArr = context.getResources().getStringArray(R.array.colorArr);
         mapLayerSource = new MapLayerSource();
         calCluster();
 
@@ -164,7 +170,13 @@ public class ClusterCreation {
                         Log.d("Feature found with %1$s", feature.toJson());
                         //Toast.makeText(MainActivity.this, feature.toJson(), Toast.LENGTH_SHORT).show();
                         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                        builder.setTitle("Do you want to download cluster?");
+
+                        LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        View v = layoutInflater.inflate(R.layout.download_dialog, null);
+                        GradientDrawable gd = (GradientDrawable) v.findViewById(R.id.cluster_color).getBackground();
+                        gd.setColor(Color.parseColor(colorArr[Integer.parseInt(feature.getStringProperty("circleID"))]));
+
+                        builder.setView(v);
                         builder.setPositiveButton("Download", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {

@@ -19,8 +19,9 @@ public class KMeansCluster {
     private String LAYER_ID;
     private String K_SOURCE_ID;
     private String K_LAYER_ID;
+    private String[] colorArr;
 
-    public MapboxMap.OnMapClickListener initKMeans(Context context, MapboxMap mapboxMap, String[] colorArr){
+    public MapboxMap.OnMapClickListener initKMeans(Context context, MapboxMap mapboxMap){
         this.context = context;
 
         getStringResource();
@@ -45,6 +46,7 @@ public class KMeansCluster {
         LAYER_ID = res.getString(R.string.LAYER_ID);
         K_SOURCE_ID = res.getString(R.string.K_SOURCE_ID);
         K_LAYER_ID = res.getString(R.string.K_LAYER_ID);
+        colorArr = res.getStringArray(R.array.colorArr);
     }
 
 

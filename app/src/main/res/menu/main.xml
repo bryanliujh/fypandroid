@@ -2,18 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/download_cluster"
-        android:checkable="true"
+        android:id="@+id/region_layer"
         android:orderInCategory="100"
-        android:title="Download Clusters"
+        android:title="Region Layer"
         app:showAsAction="never" />
 
     <item
         android:id="@+id/cluster_layer"
-        android:checkable="true"
         android:orderInCategory="200"
         android:title="Cluster Layer"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/normal_layer"
+        android:orderInCategory="300"
+        android:title="Normal Layer"
+        app:showAsAction="never" />
+
 
     <!--
     <item
@@ -37,5 +42,8 @@
         android:title="Sri Lanka Map"
         android:icon="@drawable/ic_sri_lanka"
         app:showAsAction="always" />
+
+
+
 
 </menu>
