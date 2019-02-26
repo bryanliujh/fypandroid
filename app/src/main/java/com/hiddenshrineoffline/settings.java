@@ -95,6 +95,14 @@ public class settings extends AppCompatActivity
                 Intent ar = new Intent(settings.this, shrine_ar.class);
                 startActivity(ar);
                 break;
+            case R.id.nav_game_ar:
+                Intent game = new Intent(settings.this, GameARActivity.class);
+                startActivity(game);
+                break;
+            case R.id.nav_video_ar:
+                Intent video = new Intent(settings.this, VideoARActivity.class);
+                startActivity(video);
+                break;
             case R.id.nav_settings:
                 Intent settings = new Intent(settings.this, settings.class);
                 startActivity(settings);

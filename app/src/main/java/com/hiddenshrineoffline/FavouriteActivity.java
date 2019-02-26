@@ -97,6 +97,14 @@ public class FavouriteActivity extends AppCompatActivity implements NavigationVi
                 Intent ar = new Intent(FavouriteActivity.this, shrine_ar.class);
                 startActivity(ar);
                 break;
+            case R.id.nav_game_ar:
+                Intent game = new Intent(FavouriteActivity.this, GameARActivity.class);
+                startActivity(game);
+                break;
+            case R.id.nav_video_ar:
+                Intent video = new Intent(FavouriteActivity.this, VideoARActivity.class);
+                startActivity(video);
+                break;
             case R.id.nav_settings:
                 Intent settings = new Intent(FavouriteActivity.this, settings.class);
                 startActivity(settings);

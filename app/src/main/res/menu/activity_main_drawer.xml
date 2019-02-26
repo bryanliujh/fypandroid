@@ -15,6 +15,16 @@
             android:title="Shrine AR" />
 
         <item
+            android:id="@+id/nav_game_ar"
+            android:icon="@drawable/ic_game"
+            android:title="Game AR" />
+
+        <item
+            android:id="@+id/nav_video_ar"
+            android:icon="@drawable/ic_video"
+            android:title="Video AR" />
+
+        <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_settings"
             android:title="Settings" />

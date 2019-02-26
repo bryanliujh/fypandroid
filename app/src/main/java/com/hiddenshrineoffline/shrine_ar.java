@@ -200,6 +200,7 @@ public class shrine_ar extends AppCompatActivity
                 }
             }
             config.setAugmentedImageDatabase(imageDatabase);
+            config.setFocusMode(Config.FocusMode.AUTO);
             //config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE);
             mSession.configure(config);
 
@@ -377,6 +378,14 @@ public class shrine_ar extends AppCompatActivity
             case R.id.nav_shrine_ar:
                 Intent ar = new Intent(shrine_ar.this, shrine_ar.class);
                 startActivity(ar);
+                break;
+            case R.id.nav_game_ar:
+                Intent game = new Intent(shrine_ar.this, GameARActivity.class);
+                startActivity(game);
+                break;
+            case R.id.nav_video_ar:
+                Intent video = new Intent(shrine_ar.this, VideoARActivity.class);
+                startActivity(video);
                 break;
             case R.id.nav_settings:
                 Intent settings = new Intent(shrine_ar.this, settings.class);
