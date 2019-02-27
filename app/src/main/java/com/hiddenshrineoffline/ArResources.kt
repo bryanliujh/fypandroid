@@ -2,6 +2,8 @@ package com.hiddenshrineoffline
 
 import android.content.Context
 import android.media.MediaPlayer
+import android.net.Uri
+import android.os.Environment
 import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.ExternalTexture
@@ -9,13 +11,14 @@ import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.rendering.ViewRenderable
 import java.util.concurrent.CompletableFuture
 
-
 object ArResources {
     fun init(context: Context): CompletableFuture<Void> {
 
 
         val texture = ExternalTexture()
-        videoPlayer = MediaPlayer.create(context, R.raw.video)
+        //Logger.d(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES).path + "/e47edd5f-9668-4085-9541-c8d61141c385.mp4")
+        //videoPlayer = MediaPlayer.create(context, R.raw.video)
+        videoPlayer = MediaPlayer.create(context, Uri.parse(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES).path + "/e47edd5f-9668-4085-9541-c8d61141c385.mp4"))
         videoPlayer.setSurface(texture.surface)
         videoPlayer.isLooping = true
 
