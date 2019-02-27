@@ -136,6 +136,12 @@ public class DownloadCluster {
                             ImageDownload imageDownload = new ImageDownload();
                             imageDownload.initPicasso(context, imageURL, shrineUUID);
 
+                            //download videos from youtube
+                            if (!videoURL.equals("-")) {
+                                VideoDownload videoDownload = new VideoDownload(context, videoURL, shrineUUID);
+                            }
+
+
                             //create new shrine entity and add in list
                             shrineEntity.setShrine_uid(shrineUUID);
                             shrineEntity.setShrine_name(name);
@@ -226,6 +232,11 @@ public class DownloadCluster {
                                 //download image from imgur
                                 ImageDownload imageDownload = new ImageDownload();
                                 imageDownload.initPicasso(context, imageURL, shrineUUID);
+
+                                //download videos from youtube
+                                if (!videoURL.equals("-")) {
+                                    VideoDownload videoDownload = new VideoDownload(context, videoURL, shrineUUID);
+                                }
 
                                 //create new shrine entity and add in list
                                 shrineEntity.setShrine_uid(shrineUUID);

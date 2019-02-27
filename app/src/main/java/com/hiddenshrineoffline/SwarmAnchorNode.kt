@@ -1,6 +1,6 @@
 package com.hiddenshrineoffline
 
-class SwarmAnchorNode : AugmentedImageAnchorNode() {
+class SwarmAnchorNode: AugmentedImageAnchorNode() {
     override val imageWidth: Float = 1F // 100 cm
     override val imageHeight: Float = 0.6667f // 66.7 cm
 

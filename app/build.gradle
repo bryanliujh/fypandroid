@@ -26,6 +26,7 @@ android {
 }
 
 repositories {
+    maven { url "https://jitpack.io" }
     mavenCentral()
     google()
 }
@@ -54,6 +55,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.github.HaarigerHarald:android-youtubeExtractor:master-SNAPSHOT'
 }
 
 
