@@ -6,10 +6,11 @@ import android.view.MotionEvent
 import com.google.ar.sceneform.HitTestResult
 
 
-class SwarmScene : AugmentedImageNodeGroup() {
+class SwarmScene(imageName: String) : AugmentedImageNodeGroup() {
+    private val imageName2 = imageName
     override fun onInit() {
         VideoAugmentedImageNode().init(anchorNode, this)
-        VisitAugmentedImageNode().init(anchorNode, this)
+        VisitAugmentedImageNode(imageName2).init(anchorNode, this)
     }
 }
 
@@ -47,7 +48,8 @@ class VideoAugmentedImageNode : AugmentedImageNode(ArResources.videoRenderable) 
 }
 
 
-class VisitAugmentedImageNode : AugmentedImageNode(ArResources.visitRenderable) {
+class VisitAugmentedImageNode(imageName: String) : AugmentedImageNode(ArResources.visitRenderable) {
+    private val imageName2 = imageName
     override fun initLayout() {
         super.initLayout()
 
@@ -62,7 +64,8 @@ class VisitAugmentedImageNode : AugmentedImageNode(ArResources.visitRenderable) 
     }
 
     override fun onTouchEvent(p0: HitTestResult?, p1: MotionEvent?): Boolean {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://ntuhiddenshrine.herokuapp.com/shrine_detail/f253721a-50d6-4db2-b9ce-86a29df29a52"))
+        val imageName3 = imageName2.split(".")[0]
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://ntuhiddenshrine.herokuapp.com/shrine_detail/" + imageName3))
         this.scene?.view?.context?.startActivity(intent)
 
         return false

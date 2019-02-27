@@ -103,7 +103,7 @@ class SwarmArFragment : ArFragment() {
     private fun createArNode(image: AugmentedImage) {
         Logger.d("create : ${image.name}(${image.index}), pose: ${image.centerPose}, ex: ${image.extentX}, ez: ${image.extentZ}")
 
-        val node = SwarmAnchorNode().init(image)
+        val node = SwarmAnchorNode(image.name).init(image)
         trackableMap[image.name] = node
         arSceneView.scene.addChild(node)
 
