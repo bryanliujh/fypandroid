@@ -362,6 +362,10 @@ public class MainActivity extends AppCompatActivity
                 Intent nearest_shrine = new Intent(MainActivity.this, NearestShrineActivity.class);
                 startActivity(nearest_shrine);
                 break;
+            case R.id.nav_beta_ar:
+                Intent beta = new Intent(MainActivity.this, BetaVideoARActivity.class);
+                startActivity(beta);
+                break;
 
         }
 

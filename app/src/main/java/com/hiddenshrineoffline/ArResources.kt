@@ -34,7 +34,7 @@ object ArResources {
                 .build()
 
         return CompletableFuture.allOf(
-                videoRenderable
+               videoRenderable
         )
     }
 

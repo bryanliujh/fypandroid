@@ -18,7 +18,8 @@ import java.io.FileInputStream
 import java.io.IOException
 
 
-class SwarmArFragment : ArFragment() {
+
+class BetaSwarmArFragment : ArFragment() {
     private val trackableMap = mutableMapOf<String, AugmentedImageAnchorNode>()
 
     var setOnStarted: (() -> Unit)? = null
@@ -104,7 +105,7 @@ class SwarmArFragment : ArFragment() {
     private fun createArNode(image: AugmentedImage) {
         Logger.d("create : ${image.name}(${image.index}), pose: ${image.centerPose}, ex: ${image.extentX}, ez: ${image.extentZ}")
 
-        val node = SwarmAnchorNode(image.name, this.context!!).init(image)
+        val node = BetaSwarmAnchorNode(image.name, this.context!!).init(image)
         trackableMap[image.name] = node
         arSceneView.scene.addChild(node)
 

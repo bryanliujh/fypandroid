@@ -1,14 +1,17 @@
 package com.hiddenshrineoffline
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.view.MotionEvent
 import com.google.ar.sceneform.HitTestResult
 
 
-class SwarmScene(imageName: String) : AugmentedImageNodeGroup() {
+class SwarmScene(imageName: String, context: Context) : AugmentedImageNodeGroup() {
     private val imageName2 = imageName
+    private val context2 = context
     override fun onInit() {
+        //ArResources2.init(context2, imageName2)
         VideoAugmentedImageNode().init(anchorNode, this)
         VisitAugmentedImageNode(imageName2).init(anchorNode, this)
     }
@@ -71,3 +74,5 @@ class VisitAugmentedImageNode(imageName: String) : AugmentedImageNode(ArResource
         return false
     }
 }
+
+

@@ -2,7 +2,7 @@ package com.hiddenshrineoffline
 
 import android.content.Context
 
-class SwarmAnchorNode(imageName: String, context: Context): AugmentedImageAnchorNode() {
+class BetaSwarmAnchorNode(imageName: String, context: Context): AugmentedImageAnchorNode() {
     override val imageWidth: Float = 1F // 100 cm
     override val imageHeight: Float = 0.6667f // 66.7 cm
 
@@ -12,7 +12,7 @@ class SwarmAnchorNode(imageName: String, context: Context): AugmentedImageAnchor
     private val context2 = context
 
     override fun onInit() {
-        sceneList.add(SwarmScene(imageName2, context2).init(this))
+        sceneList.add(BetaSwarmScene(imageName2, context2).init(this))
     }
 
     override fun onActivate() {

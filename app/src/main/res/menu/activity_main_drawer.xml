@@ -38,6 +38,14 @@
             android:id="@+id/nav_nearest_shrine"
             android:icon="@drawable/ic_nearest_shrine"
             android:title="Nearest Shrine" />
+
+        <item
+            android:id="@+id/nav_beta_ar"
+            android:icon="@drawable/ic_beta"
+            android:title="Beta AR" />
+
+
+
     </group>
 
 </menu>
