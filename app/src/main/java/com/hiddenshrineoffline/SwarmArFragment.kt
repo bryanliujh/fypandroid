@@ -107,7 +107,7 @@ class SwarmArFragment : ArFragment() {
         trackableMap[image.name] = node
         arSceneView.scene.addChild(node)
 
-        Toast.makeText(context, "add swarm", Toast.LENGTH_LONG).show()
+        Toast.makeText(context, "add video", Toast.LENGTH_LONG).show()
 
     }
 

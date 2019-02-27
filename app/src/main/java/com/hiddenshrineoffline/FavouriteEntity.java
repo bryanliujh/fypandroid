@@ -40,6 +40,8 @@ public class FavouriteEntity {
     @ColumnInfo
     private String shrine_imageURL;
 
+    @ColumnInfo
+    private String shrine_videoURL;
 
 
     public int getPk() {
@@ -128,6 +130,14 @@ public class FavouriteEntity {
 
     public void setShrine_imageURL(String shrine_imageURL) {
         this.shrine_imageURL = shrine_imageURL;
+    }
+
+    public String getShrine_videoURL() {
+        return shrine_videoURL;
+    }
+
+    public void setShrine_videoURL(String shrine_videoURL) {
+        this.shrine_videoURL = shrine_videoURL;
     }
 
 }

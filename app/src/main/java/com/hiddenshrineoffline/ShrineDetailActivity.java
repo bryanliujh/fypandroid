@@ -25,6 +25,7 @@ public class ShrineDetailActivity extends AppCompatActivity {
     private TextView deity_val;
     private TextView religion_val;
     private TextView offerings_val;
+    private TextView videoURL_val;
     private RequestOptions imgOptions;
     private ProgressDialog pDialog;
     private Context context;
@@ -37,6 +38,7 @@ public class ShrineDetailActivity extends AppCompatActivity {
     private String deity;
     private String religion;
     private String offerings;
+    private String videoURL;
     private String imageURL;
     private String shrineUID;
     private AppDatabase mDB;
@@ -68,6 +70,7 @@ public class ShrineDetailActivity extends AppCompatActivity {
         deity_val = (TextView) (findViewById(R.id.deity_val));
         religion_val = (TextView) (findViewById(R.id.religion_val));
         offerings_val = (TextView) (findViewById(R.id.offerings_val));
+        videoURL_val = (TextView) (findViewById(R.id.videoURL_val));
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
@@ -85,6 +88,7 @@ public class ShrineDetailActivity extends AppCompatActivity {
                 religion = shrineEntity.getShrine_religion();
                 offerings = shrineEntity.getShrine_offerings();
                 imageURL = shrineEntity.getShrine_imageURL();
+                videoURL = shrineEntity.getShrine_videoURL();
                 shrineUID = shrineEntity.getShrine_uid();
 
             }
@@ -97,6 +101,7 @@ public class ShrineDetailActivity extends AppCompatActivity {
                 religion = extras.getString("religion");
                 offerings = extras.getString("offerings");
                 imageURL = extras.getString("imageURL");
+                videoURL = extras.getString("videoURL");
                 shrineUID = extras.getString("shrineUUID");
             }
 
@@ -128,6 +133,7 @@ public class ShrineDetailActivity extends AppCompatActivity {
         deity_val.setText(deity);
         religion_val.setText(religion);
         offerings_val.setText(offerings);
+        videoURL_val.setText(videoURL);
 
 
         NetworkConnection networkConnection = new NetworkConnection();
@@ -164,6 +170,7 @@ public class ShrineDetailActivity extends AppCompatActivity {
             favouriteEntity.setShrine_religion(religion);
             favouriteEntity.setShrine_offerings(offerings);
             favouriteEntity.setShrine_imageURL(imageURL);
+            favouriteEntity.setShrine_videoURL(videoURL);
             favouriteEntity.setShrine_uid(shrineUID);
 
             favouriteBtn.setChecked(false);

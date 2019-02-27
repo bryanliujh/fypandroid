@@ -96,6 +96,7 @@ public class DownloadCluster {
                     String religion;
                     String offerings;
                     String imageURL;
+                    String videoURL;
 
                     //use array difference to find the difference in array (for update only)
                     shrineArrayList = new ArrayList<ShrineEntity>();
@@ -128,6 +129,7 @@ public class DownloadCluster {
                             religion = properties.getString("religion");
                             offerings = properties.getString("offerings");
                             imageURL = properties.getString("imageURL");
+                            videoURL = properties.getString("videoURL");
 
 
                             //download image from imgur
@@ -144,6 +146,7 @@ public class DownloadCluster {
                             shrineEntity.setShrine_religion(religion);
                             shrineEntity.setShrine_offerings(offerings);
                             shrineEntity.setShrine_imageURL(imageURL);
+                            shrineEntity.setShrine_videoURL(videoURL);
                             shrineArrayList.add(shrineEntity);
                             newUidList.add(shrineUUID);
                         }
@@ -194,6 +197,7 @@ public class DownloadCluster {
                         String religion;
                         String offerings;
                         String imageURL;
+                        String videoURL;
 
                         //use array difference to find the difference in array (for update only)
                         shrineArrayList = new ArrayList<ShrineEntity>();
@@ -216,6 +220,7 @@ public class DownloadCluster {
                                 religion = properties.getString("religion");
                                 offerings = properties.getString("offerings");
                                 imageURL = properties.getString("imageURL");
+                                videoURL = properties.getString("videoURL");
 
 
                                 //download image from imgur
@@ -232,6 +237,7 @@ public class DownloadCluster {
                                 shrineEntity.setShrine_religion(religion);
                                 shrineEntity.setShrine_offerings(offerings);
                                 shrineEntity.setShrine_imageURL(imageURL);
+                                shrineEntity.setShrine_videoURL(videoURL);
                                 shrineEntity.setCluster_uid(Integer.parseInt(cluster_id));
                                 shrineArrayList.add(shrineEntity);
                                 newUidList.add(shrineUUID);

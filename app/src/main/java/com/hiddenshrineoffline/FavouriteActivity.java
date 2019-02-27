@@ -148,6 +148,7 @@ public class FavouriteActivity extends AppCompatActivity implements NavigationVi
                     shrine_detail.putExtra("religion", favouriteEntity.getShrine_religion());
                     shrine_detail.putExtra("offerings",favouriteEntity.getShrine_offerings());
                     shrine_detail.putExtra("imageURL", favouriteEntity.getShrine_imageURL());
+                    shrine_detail.putExtra("videoURL", favouriteEntity.getShrine_videoURL());
                     shrine_detail.putExtra("shrineUUID", favouriteEntity.getShrine_uid());
 
                     startActivity(shrine_detail);

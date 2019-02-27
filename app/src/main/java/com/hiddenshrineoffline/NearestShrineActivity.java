@@ -39,6 +39,7 @@ public class NearestShrineActivity extends AppCompatActivity implements Navigati
     private TextView deity_val;
     private TextView religion_val;
     private TextView offerings_val;
+    private TextView videoURL_val;
 
 
     private Location currentLocation;
@@ -50,6 +51,7 @@ public class NearestShrineActivity extends AppCompatActivity implements Navigati
     private String closestDeity;
     private String closestReligion;
     private String closestOfferings;
+    private String closestVideoURL;
     private String closestImageURL;
     private String closestShrineUID;
     private float smallestDistance;
@@ -86,6 +88,7 @@ public class NearestShrineActivity extends AppCompatActivity implements Navigati
         deity_val = (TextView) (findViewById(R.id.deity_val));
         religion_val = (TextView) (findViewById(R.id.religion_val));
         offerings_val = (TextView) (findViewById(R.id.offerings_val));
+        videoURL_val = (TextView) (findViewById(R.id.videoURL_val));
 
 
         getNearestShrine();
@@ -123,6 +126,7 @@ public class NearestShrineActivity extends AppCompatActivity implements Navigati
                 String religion = properties.getString("religion");
                 String offerings = properties.getString("offerings");
                 String imageURL = properties.getString("imageURL");
+                String videoURL = properties.getString("videoURL");
                 String shrineUID = properties.getString("shrineUUID");
 
 
@@ -144,6 +148,7 @@ public class NearestShrineActivity extends AppCompatActivity implements Navigati
                     closestReligion = religion;
                     closestOfferings = offerings;
                     closestImageURL = imageURL;
+                    closestVideoURL = videoURL;
                     closestShrineUID = shrineUID;
                     smallestDistance = distance;
                 }
@@ -167,6 +172,7 @@ public class NearestShrineActivity extends AppCompatActivity implements Navigati
         deity_val.setText(closestDeity);
         religion_val.setText(closestReligion);
         offerings_val.setText(closestOfferings);
+        videoURL_val.setText(closestVideoURL);
 
         mapView.getMapAsync(new OnMapReadyCallback() {
             @Override
@@ -209,6 +215,14 @@ public class NearestShrineActivity extends AppCompatActivity implements Navigati
             case R.id.nav_shrine_ar:
                 Intent ar = new Intent(NearestShrineActivity.this, shrine_ar.class);
                 startActivity(ar);
+                break;
+            case R.id.nav_game_ar:
+                Intent game = new Intent(NearestShrineActivity.this, GameARActivity.class);
+                startActivity(game);
+                break;
+            case R.id.nav_video_ar:
+                Intent video = new Intent(NearestShrineActivity.this, VideoARActivity.class);
+                startActivity(video);
                 break;
             case R.id.nav_settings:
                 Intent settings = new Intent(NearestShrineActivity.this, settings.class);
