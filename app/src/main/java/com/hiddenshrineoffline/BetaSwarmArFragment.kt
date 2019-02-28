@@ -18,7 +18,6 @@ import java.io.FileInputStream
 import java.io.IOException
 
 
-
 class BetaSwarmArFragment : ArFragment() {
     private val trackableMap = mutableMapOf<String, AugmentedImageAnchorNode>()
 
@@ -46,9 +45,22 @@ class BetaSwarmArFragment : ArFragment() {
 
     override fun onPause() {
         super.onPause()
+
         trackableMap.forEach {
             arSceneView.scene.removeChild(it.value)
         }
+
+
+        trackableMap.clear()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        trackableMap.forEach {
+            arSceneView.scene.removeChild(it.value)
+        }
+
 
         trackableMap.clear()
     }

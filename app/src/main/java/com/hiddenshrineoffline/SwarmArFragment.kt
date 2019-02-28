@@ -45,9 +45,22 @@ class SwarmArFragment : ArFragment() {
 
     override fun onPause() {
         super.onPause()
+
         trackableMap.forEach {
             arSceneView.scene.removeChild(it.value)
         }
+
+
+        trackableMap.clear()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        trackableMap.forEach {
+            arSceneView.scene.removeChild(it.value)
+        }
+
 
         trackableMap.clear()
     }
