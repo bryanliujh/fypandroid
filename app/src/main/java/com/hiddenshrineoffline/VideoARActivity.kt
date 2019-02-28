@@ -72,10 +72,6 @@ class VideoARActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
                 val ar = Intent(this@VideoARActivity, shrine_ar::class.java)
                 startActivity(ar)
             }
-            R.id.nav_game_ar -> {
-                val game = Intent(this@VideoARActivity, GameARActivity::class.java)
-                startActivity(game)
-            }
             R.id.nav_video_ar -> {
                 val video = Intent(this@VideoARActivity, VideoARActivity::class.java)
                 startActivity(video)
@@ -90,6 +86,10 @@ class VideoARActivity : AppCompatActivity(), NavigationView.OnNavigationItemSele
             }
             R.id.nav_nearest_shrine -> {
                 val nearest_shrine = Intent(this@VideoARActivity, NearestShrineActivity::class.java)
+                startActivity(nearest_shrine)
+            }
+            R.id.nav_beta_ar -> {
+                val nearest_shrine = Intent(this@VideoARActivity, BetaVideoARActivity::class.java)
                 startActivity(nearest_shrine)
             }
         }
