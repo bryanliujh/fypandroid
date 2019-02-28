@@ -72,10 +72,6 @@ class BetaVideoARActivity : AppCompatActivity(), NavigationView.OnNavigationItem
                 val ar = Intent(this@BetaVideoARActivity, shrine_ar::class.java)
                 startActivity(ar)
             }
-            R.id.nav_game_ar -> {
-                val game = Intent(this@BetaVideoARActivity, GameARActivity::class.java)
-                startActivity(game)
-            }
             R.id.nav_video_ar -> {
                 val video = Intent(this@BetaVideoARActivity, BetaVideoARActivity::class.java)
                 startActivity(video)
