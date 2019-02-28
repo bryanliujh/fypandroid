@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -61,6 +62,10 @@ public class GameARActivity  extends AppCompatActivity
     private boolean modelAdded = false; // add model once
     private boolean sessionConfigured = false;
 
+    private MediaPlayer mp;
+    float speed = 2.5f;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -79,6 +84,16 @@ public class GameARActivity  extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+        mp = new MediaPlayer();
+        mp = MediaPlayer.create(context, R.raw.sound);
+        mp.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                mp.release();
+            }
+        });
 
 
         initArFragment();
@@ -228,7 +243,16 @@ public class GameARActivity  extends AppCompatActivity
         node.setOnTapListener(new Node.OnTapListener() {
             @Override
             public void onTap(HitTestResult hitTestResult, MotionEvent motionEvent) {
-                Toast.makeText(context, "hello", Toast.LENGTH_SHORT).show();
+                mp.setPlaybackParams(mp.getPlaybackParams().setSpeed(speed));
+                mp.start();
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(GameARActivity.this);
+                builder.setMessage("You Found a Treasure").setTitle("Congratulations");
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                anchor.detach();
+
+                //Toast.makeText(context, "Congratulations, You Found a Treasure", Toast.LENGTH_SHORT).show();
             }
         });
         fragment.getArSceneView().getScene().addChild(anchorNode);
