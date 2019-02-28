@@ -342,10 +342,11 @@ public class MainActivity extends AppCompatActivity
                 Intent ar = new Intent(MainActivity.this, shrine_ar.class);
                 startActivity(ar);
                 break;
+            /*
             case R.id.nav_game_ar:
                 Intent game = new Intent(MainActivity.this, GameARActivity.class);
                 startActivity(game);
-                break;
+                break;*/
             case R.id.nav_video_ar:
                 Intent video = new Intent(MainActivity.this, VideoARActivity.class);
                 startActivity(video);
@@ -362,6 +363,11 @@ public class MainActivity extends AppCompatActivity
                 Intent nearest_shrine = new Intent(MainActivity.this, NearestShrineActivity.class);
                 startActivity(nearest_shrine);
                 break;
+            /*
+            case R.id.nav_quest_log:
+                Intent quest_log = new Intent(MainActivity.this, QuestLogActivity.class);
+                startActivity(quest_log);
+                break;*/
             case R.id.nav_beta_ar:
                 Intent beta = new Intent(MainActivity.this, BetaVideoARActivity.class);
                 startActivity(beta);
