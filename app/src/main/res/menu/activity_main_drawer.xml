@@ -13,11 +13,11 @@
             android:id="@+id/nav_shrine_ar"
             android:icon="@drawable/ic_ar"
             android:title="Shrine AR" />
-
+        <!--
         <item
             android:id="@+id/nav_game_ar"
             android:icon="@drawable/ic_game"
-            android:title="Game AR" />
+            android:title="Game AR" />-->
 
         <item
             android:id="@+id/nav_video_ar"
@@ -38,6 +38,12 @@
             android:id="@+id/nav_nearest_shrine"
             android:icon="@drawable/ic_nearest_shrine"
             android:title="Nearest Shrine" />
+
+        <!--
+        <item
+            android:id="@+id/nav_quest_log"
+            android:icon="@drawable/ic_quest"
+            android:title="Quest Log" />-->
 
         <item
             android:id="@+id/nav_beta_ar"
