@@ -95,10 +95,6 @@ public class settings extends AppCompatActivity
                 Intent ar = new Intent(settings.this, shrine_ar.class);
                 startActivity(ar);
                 break;
-            case R.id.nav_game_ar:
-                Intent game = new Intent(settings.this, GameARActivity.class);
-                startActivity(game);
-                break;
             case R.id.nav_video_ar:
                 Intent video = new Intent(settings.this, VideoARActivity.class);
                 startActivity(video);
@@ -114,6 +110,10 @@ public class settings extends AppCompatActivity
             case R.id.nav_nearest_shrine:
                 Intent nearest_shrine = new Intent(settings.this, NearestShrineActivity.class);
                 startActivity(nearest_shrine);
+                break;
+            case R.id.nav_beta_ar:
+                Intent beta = new Intent(settings.this, BetaVideoARActivity.class);
+                startActivity(beta);
                 break;
         }
 
