@@ -216,10 +216,6 @@ public class NearestShrineActivity extends AppCompatActivity implements Navigati
                 Intent ar = new Intent(NearestShrineActivity.this, shrine_ar.class);
                 startActivity(ar);
                 break;
-            case R.id.nav_game_ar:
-                Intent game = new Intent(NearestShrineActivity.this, GameARActivity.class);
-                startActivity(game);
-                break;
             case R.id.nav_video_ar:
                 Intent video = new Intent(NearestShrineActivity.this, VideoARActivity.class);
                 startActivity(video);
@@ -235,6 +231,10 @@ public class NearestShrineActivity extends AppCompatActivity implements Navigati
             case R.id.nav_nearest_shrine:
                 Intent nearest_shrine = new Intent(NearestShrineActivity.this, NearestShrineActivity.class);
                 startActivity(nearest_shrine);
+                break;
+            case R.id.nav_beta_ar:
+                Intent beta = new Intent(NearestShrineActivity.this, BetaVideoARActivity.class);
+                startActivity(beta);
                 break;
         }
 
