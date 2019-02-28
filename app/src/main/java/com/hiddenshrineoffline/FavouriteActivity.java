@@ -97,10 +97,6 @@ public class FavouriteActivity extends AppCompatActivity implements NavigationVi
                 Intent ar = new Intent(FavouriteActivity.this, shrine_ar.class);
                 startActivity(ar);
                 break;
-            case R.id.nav_game_ar:
-                Intent game = new Intent(FavouriteActivity.this, GameARActivity.class);
-                startActivity(game);
-                break;
             case R.id.nav_video_ar:
                 Intent video = new Intent(FavouriteActivity.this, VideoARActivity.class);
                 startActivity(video);
@@ -116,6 +112,10 @@ public class FavouriteActivity extends AppCompatActivity implements NavigationVi
             case R.id.nav_nearest_shrine:
                 Intent nearest_shrine = new Intent(FavouriteActivity.this, NearestShrineActivity.class);
                 startActivity(nearest_shrine);
+                break;
+            case R.id.nav_beta_ar:
+                Intent beta = new Intent(FavouriteActivity.this, BetaVideoARActivity.class);
+                startActivity(beta);
                 break;
         }
 
