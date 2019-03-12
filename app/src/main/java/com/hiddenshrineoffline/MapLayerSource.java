@@ -23,6 +23,10 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.circleRadius;
 
 public class MapLayerSource {
 
+
+    //exponential - rate of increase in size
+    //first stop - smallest size
+    //second stop - largest size
     public void addMapLayer(MapboxMap mapboxMap, String LAYER_ID, String SOURCE_ID, Expression.Stop[] stops){
         if (mapLayerExist(mapboxMap, LAYER_ID) == false) {
             CircleLayer circleLayer = new CircleLayer(LAYER_ID, SOURCE_ID);
@@ -31,7 +35,7 @@ public class MapLayerSource {
                             interpolate(
                                     exponential(1.75f),
                                     zoom(),
-                                    stop(12, 2f),
+                                    stop(12, 5f),
                                     stop(22, 180f)
                             ))
             );
