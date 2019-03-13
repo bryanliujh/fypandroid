@@ -47,6 +47,7 @@
 
         <item
             android:id="@+id/nav_beta_ar"
+            android:visible="false"
             android:icon="@drawable/ic_beta"
             android:title="Beta AR" />
 
