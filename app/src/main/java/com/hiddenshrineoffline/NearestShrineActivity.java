@@ -129,7 +129,6 @@ public class NearestShrineActivity extends AppCompatActivity implements Navigati
                 String videoURL = properties.getString("videoURL");
                 String shrineUID = properties.getString("shrineUUID");
 
-
                 JSONObject geometry = feature.getJSONObject("geometry");
                 JSONArray coord_arr = geometry.getJSONArray("coordinates");
                 double lon = (double) coord_arr.get(0);
@@ -160,10 +159,7 @@ public class NearestShrineActivity extends AppCompatActivity implements Navigati
             Log.e("json_error","Error Calculating Closest Location");
         }
 
-
-
         //Log.i("hi", String.valueOf(closestLocation.getLatitude()) + ":" + String.valueOf(closestLocation.getLongitude()) + ":" + closestShrineUID);
-
 
         name_val.setText(closestName);
         status_val.setText(closestStatus);

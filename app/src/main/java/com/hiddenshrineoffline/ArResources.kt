@@ -18,7 +18,7 @@ object ArResources {
         val texture = ExternalTexture()
         //Logger.d(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES).path + "/e47edd5f-9668-4085-9541-c8d61141c385.mp4")
         //videoPlayer = MediaPlayer.create(context, R.raw.video)
-        videoPlayer = MediaPlayer.create(context, Uri.parse(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES).path + "/e47edd5f-9668-4085-9541-c8d61141c385.mp4"))
+        videoPlayer = MediaPlayer.create(context, Uri.parse(context.getExternalFilesDir(Environment.DIRECTORY_MOVIES).path + "/3937bf71-ee5c-4740-822d-300abd35cbb8.mp4"))
         videoPlayer.setSurface(texture.surface)
         videoPlayer.isLooping = true
 
