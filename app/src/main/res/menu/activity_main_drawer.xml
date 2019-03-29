@@ -20,7 +20,15 @@
             android:title="Game AR" />-->
 
         <item
+            android:id="@+id/nav_beta_ar"
+            android:icon="@drawable/ic_video"
+            android:title="Video AR" />
+
+
+        <!-- video with links -->
+        <item
             android:id="@+id/nav_video_ar"
+            android:visible="false"
             android:icon="@drawable/ic_video"
             android:title="Video AR" />
 
@@ -45,10 +53,7 @@
             android:icon="@drawable/ic_quest"
             android:title="Quest Log" />-->
 
-        <item
-            android:id="@+id/nav_beta_ar"
-            android:icon="@drawable/ic_beta"
-            android:title="Beta AR" />
+
 
 
 
