@@ -1,6 +1,5 @@
 <resources>
     <string name="access_token">pk.eyJ1IjoiaGlkZGVuc2hyaW5lbnR1IiwiYSI6ImNqaW15cHNveTA5ZW0za28ybDhhenUwOXAifQ.vDG7MECkwj4PnwW_iqZCNQ</string>
-    <string name="youtube_key">AIzaSyBrkePYSMzNBGY-aC0a3qaPdG-VzZk6f38</string>
     <string name="app_name">Hidden Shrine Offline</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
