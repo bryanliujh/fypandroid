@@ -22,8 +22,8 @@ import java.util.HashMap;
 public class SplashActivity extends AppCompatActivity {
 
     private ProgressDialog pDialog;
-    private static String url = "https://ntuhiddenshrine.herokuapp.com/map_geojson";
-    private static String url2 = "https://ntuhiddenshrine.herokuapp.com/kmeans_geojson";
+    private static String url = "https://ntushrineproject.herokuapp.com/map_geojson";
+    private static String url2 = "https://ntushrineproject.herokuapp.com/kmeans_geojson";
     private static AppDatabase INSTANCE;
     private FileManager fileManager;
     private FileManager fileManager2;

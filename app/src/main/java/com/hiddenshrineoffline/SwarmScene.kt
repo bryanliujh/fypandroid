@@ -68,7 +68,7 @@ class VisitAugmentedImageNode(imageName: String) : AugmentedImageNode(ArResource
 
     override fun onTouchEvent(p0: HitTestResult?, p1: MotionEvent?): Boolean {
         val imageName3 = imageName2.split(".")[0]
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://ntuhiddenshrine.herokuapp.com/shrine_detail/" + imageName3))
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://ntushrineproject.herokuapp.com/shrine_detail/" + imageName3))
         this.scene?.view?.context?.startActivity(intent)
 
         return false
